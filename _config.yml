@@ -4,10 +4,10 @@
 
 # Site
 title: trickster_2005
-subtitle: ''
+subtitle: 'hello'
 description: ''
 keywords:
-author: John Doe
+author: Andy
 language: zh-TW
 timezone: ''
 
@@ -41,7 +41,10 @@ external_link:
   exclude: ''
 filename_case: 0
 render_drafts: false
-post_asset_folder: false
+post_asset_folder: true
+marked:
+  prependRoot: true
+  postAsset: true
 relative_link: false
 future: true
 syntax_highlighter: highlight.js
@@ -105,3 +108,15 @@ deploy:
   type: git
   repo: https://github.com/trickster-2005/blog.git
   branch: main
+
+
+# =================================================================
+
+
+# markdown:
+#   renderer: 
+#     quotes: '“”‘’'
+#   options:
+#     plugins:
+#       # - markdown-it-imsize
+#       - markdown-it-footnote
