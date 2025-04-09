@@ -5,7 +5,9 @@
 menu:
   Home: /
   Archives: /archives
+  Murmur: /mood 
   About: /About
+
 # RSS link
 # rss: /atom.xml
 # Path of title banner image of page top

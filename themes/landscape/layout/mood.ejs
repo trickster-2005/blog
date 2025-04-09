@@ -1,0 +1,8 @@
+<div class="mood">
+    <h1>心情隨筆</h1>
+    <ul>
+      {% for entry in mood_entries %}
+        <li>{{ entry.date }} - {{ entry.content }}</li>
+      {% endfor %}
+    </ul>
+</div>

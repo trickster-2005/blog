@@ -98,7 +98,10 @@ exclude:
 ignore:
 
 # Extensions
-## Plugins: https://hexo.io/plugins/
+# Plugins: 
+Plugins:
+  # - hexo-footnotes
+  - hexo-reference
 ## Themes: https://hexo.io/themes/
 theme: landscape
 
