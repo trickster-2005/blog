@@ -11,10 +11,10 @@ menu:
 # RSS link
 # rss: /atom.xml
 # Path of title banner image of page top
-banner: "images/moon2.png"
+banner: "images/12.png"
 # Subtitle of page top
 
-subtitle: "Mes enfonts, you mustn't go at things head-on, you are too weak; take it from me and take it on an angle. . . . Play dead, play the sleeping dog.   -BALZAC, Les Paysam "
+subtitle: "Have I forgotten how amazing it could be to be alive? "
 # Header links with icon, specified links will appear at the top right corner of the page
 # Each name must correspond to the icon name of Fork Awesome
 # https://forkaweso.me/Fork-Awesome/icons/
@@ -51,9 +51,10 @@ sidebar: right
 widgets:
 - recent_posts
 - category
-- tag
+# - tag
 # - archive
 - tagcloud
+
 # ===============
 # Widget behavior
 # ===============
@@ -92,3 +93,4 @@ valine:
   lang: zh-TW # i18n: zh-cn/en
   placeholder: Just go go # valine comment input placeholder(like: Please leave your footprints )
   guest_info: nick,mail,link #valine comment header info
+

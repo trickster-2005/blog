@@ -113,13 +113,13 @@ deploy:
   branch: main
 
 
-# =================================================================
+# =======  hxo-word-counter =========================================
 
-
-# markdown:
-#   renderer: 
-#     quotes: '“”‘’'
-#   options:
-#     plugins:
-#       # - markdown-it-imsize
-#       - markdown-it-footnote
+symbols_count_time:
+  symbols: true
+  # time: true
+  total_symbols: true
+  # total_time: true
+  exclude_codeblock: false
+  # wpm: 275
+  # suffix: "mins."

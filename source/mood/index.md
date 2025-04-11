@@ -2,6 +2,7 @@
 title: Random Stuff
 date: 2025-04-09 00:00:00
 type: "mood"
+wordcount: false
 ---
 {{ mood_entries }}
 

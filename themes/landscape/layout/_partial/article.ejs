@@ -34,6 +34,11 @@
         </a>
       <% } %>
       <%- partial('post/tag') %>
+
+      <% if (post.wordcount != false) { %>
+        <%- symbolsCount(post) %> 字
+      <% } %>
+      <!-- 上面三行是我新增的，可以顯示字數。使用 hexo-word-counter -->
     </footer>
   </div>
   <% if (!index){ %>
