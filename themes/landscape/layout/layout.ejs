@@ -7,11 +7,19 @@
       <%- partial('_partial/header', null, {cache: !config.relative_link}) %>
       <div class="outer">
         <section id="main"><%- body %></section>
+        
+        <!-- 以下三行是新建的toc渲染 -->
+        <aside id="sidebar" style="position: sticky; top: 0px;">
+          <%- partial('_widget/toc', { page: page }) %>
+        </aside>
+
         <% if (theme.sidebar && theme.sidebar !== 'bottom'){ %>
           <%- partial('_partial/sidebar', null, {cache: !config.relative_link}) %>
         <% } %>
+
       </div>
       <%- partial('_partial/footer', null, {cache: !config.relative_link}) %>
+    
     </div>
     <%- partial('_partial/mobile-nav', null, {cache: !config.relative_link}) %>
     <%- partial('_partial/after-footer') %>

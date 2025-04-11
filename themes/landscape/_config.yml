@@ -1,3 +1,7 @@
+toc:
+  enable: true
+
+
 # ===============
 # Header
 # ===============
@@ -53,7 +57,9 @@ widgets:
 - category
 # - tag
 # - archive
+
 - tagcloud
+# - toc
 
 # ===============
 # Widget behavior
