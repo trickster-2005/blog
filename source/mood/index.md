@@ -6,6 +6,12 @@ wordcount: false
 ---
 {{ mood_entries }}
 
+- 2025-04-17 13:58:44
+  這學期搞砸了
+
+- 2025-04-17 13:58:27
+  想投入的專題總是會被其他繁瑣事情弄到無法專心
+
 - 2025-04-12 05:25:33
   really need to improve my time management ability
 
