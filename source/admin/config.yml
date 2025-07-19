@@ -3,7 +3,7 @@ backend:                                   # [必填] 設定 CMS 後端（版本
   branch: main                             # 要提交的主要分支（和 Hexo 部署分支一致）
   site_domain: https://trickster2005.netlify.app  # 你的網站網址（便於預覽）
 
-publish_mode: simple        # 發布模式：editorial_workflow = 草稿/審核/發布
+publish_mode: editorial_workflow        # 發布模式：editorial_workflow = 草稿/審核/發布
 
 
 # 這兩行要刪掉嗎？
