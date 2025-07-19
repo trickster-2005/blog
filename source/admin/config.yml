@@ -1,6 +1,5 @@
 backend:                                   # [必填] 設定 CMS 後端（版本庫）
-  name: github                             # 使用 GitHub 儲存與讀寫內容
-  repo: trickster-2005/blog                # 你的 GitHub repo，例如 username/repo
+  name: git-gateway                             # 使用 GitHub 儲存與讀寫內容
   branch: main                             # 要提交的主要分支（和 Hexo 部署分支一致）
   site_domain: https://trickster2005.netlify.app  # 你的網站網址（便於預覽）
 
