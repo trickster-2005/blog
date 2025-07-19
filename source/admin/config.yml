@@ -44,7 +44,7 @@ collections:
     files:                                 # file-based collection (指定單一檔案)
       - label: "About Page"                # 頁面名稱
         name: "about"                      # 頁面識別名
-        file: "source/about/index.md"      # Hexo 預設 about 頁面檔案
+        file: "source/About/index.md"      # Hexo 預設 about 頁面檔案
         fields:
           - { label: "Title", name: "title", widget: "string" }
           - { label: "Body", name: "body", widget: "markdown" }
