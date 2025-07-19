@@ -1,0 +1,35 @@
+backend:
+  name: github                          # 使用 GitHub 儲存內容
+  repo: trickster-2005/blog             # 對應你的 repo
+  branch: main                          # Hexo 部署分支
+  site_domain: https://trickster-2005.github.io/blog
+
+publish_mode: editorial_workflow        # 使用草稿-審核-發布流程
+media_folder: "source/images/uploads"   # 媒體檔案在 repo 中的位置
+public_folder: "/images/uploads"        # 網站對外的圖片路徑
+
+collections:
+  - name: "posts"
+    label: "Blog Posts"
+    folder: "source/_posts"             # Hexo 預設文章資料夾
+    create: true
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"   # 檔名規則
+    extension: "md"
+    format: "frontmatter"
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Date", name: "date", widget: "datetime" }
+      - { label: "Draft", name: "draft", widget: "boolean", default: false }
+      - { label: "Tags", name: "tags", widget: "list", required: false }
+      - { label: "Categories", name: "categories", widget: "list", required: false }
+      - { label: "Body", name: "body", widget: "markdown" }
+
+  - name: "pages"
+    label: "Pages"
+    files:
+      - label: "About"
+        name: "about"
+        file: "source/about/index.md"
+        fields:
+          - { label: "Title", name: "title", widget: "string" }
+          - { label: "Body", name: "body", widget: "markdown" }
