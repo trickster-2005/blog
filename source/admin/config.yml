@@ -1,35 +1,38 @@
-backend:
-  name: github                          # 使用 GitHub 儲存內容
-  repo: trickster-2005/blog             # 對應你的 repo
-  branch: main                          # Hexo 部署分支
-  site_domain: https://trickster-2005.github.io/blog
+backend:                                   # [必填] 設定 CMS 後端（版本庫）
+  name: github                             # 使用 GitHub 儲存與讀寫內容
+  repo: trickster-2005/blog                # 你的 GitHub repo，例如 username/repo
+  branch: main                             # 要提交的主要分支（和 Hexo 部署分支一致）
+  site_domain: https://trickster-2005.github.io/blog  # 你的網站網址（便於預覽）
 
-publish_mode: editorial_workflow        # 使用草稿-審核-發布流程
-media_folder: "source/images/uploads"   # 媒體檔案在 repo 中的位置
-public_folder: "/images/uploads"        # 網站對外的圖片路徑
+publish_mode: editorial_workflow           # 發布模式：editorial_workflow = 草稿/審核/發布
+media_folder: "source/images/uploads"      # 媒體檔案上傳存放的 repo 資料夾
+public_folder: "/images/uploads"           # 網站公開媒體檔案 URL 路徑
 
+# =================== Collections (內容集合) ===================
 collections:
-  - name: "posts"
-    label: "Blog Posts"
-    folder: "source/_posts"             # Hexo 預設文章資料夾
-    create: true
-    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"   # 檔名規則
-    extension: "md"
-    format: "frontmatter"
-    fields:
-      - { label: "Title", name: "title", widget: "string" }
-      - { label: "Date", name: "date", widget: "datetime" }
-      - { label: "Draft", name: "draft", widget: "boolean", default: false }
-      - { label: "Tags", name: "tags", widget: "list", required: false }
-      - { label: "Categories", name: "categories", widget: "list", required: false }
-      - { label: "Body", name: "body", widget: "markdown" }
+  # ----------- Blog Posts -----------
+  - name: "posts"                          # collection 名稱，用於程式路由
+    label: "Blog Posts"                    # 後台顯示名稱
+    folder: "source/_posts"                # Hexo 預設文章目錄
+    create: true                           # 允許新增文章
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}" # 新文章檔名規則
+    extension: "md"                        # 文章檔案格式
+    format: "frontmatter"                  # 使用 front-matter（YAML/JSON）格式
+    fields:                                # 定義文章欄位
+      - { label: "Title", name: "title", widget: "string" }   # 文章標題
+      - { label: "Date", name: "date", widget: "datetime" }   # 發布日期
+      - { label: "Draft", name: "draft", widget: "boolean", default: false } # 是否為草稿
+      - { label: "Tags", name: "tags", widget: "list", required: false }      # 標籤
+      - { label: "Categories", name: "categories", widget: "list", required: false } # 分類
+      - { label: "Body", name: "body", widget: "markdown" }   # 正文內容 (Markdown)
 
-  - name: "pages"
-    label: "Pages"
-    files:
-      - label: "About"
-        name: "about"
-        file: "source/about/index.md"
+  # ----------- Pages -----------
+  - name: "pages"                          # collection 名稱
+    label: "Pages"                         # 後台顯示名稱
+    files:                                 # file-based collection (指定單一檔案)
+      - label: "About Page"                # 頁面名稱
+        name: "about"                      # 頁面識別名
+        file: "source/about/index.md"      # Hexo 預設 about 頁面檔案
         fields:
           - { label: "Title", name: "title", widget: "string" }
           - { label: "Body", name: "body", widget: "markdown" }
