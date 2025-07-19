@@ -2,7 +2,7 @@ backend:                                   # [必填] 設定 CMS 後端（版本
   name: github                             # 使用 GitHub 儲存與讀寫內容
   repo: trickster-2005/blog                # 你的 GitHub repo，例如 username/repo
   branch: main                             # 要提交的主要分支（和 Hexo 部署分支一致）
-  site_domain: https://trickster-2005.github.io/blog  # 你的網站網址（便於預覽）
+  site_domain: https://trickster2005.netlify.app  # 你的網站網址（便於預覽）
 
 publish_mode: editorial_workflow           # 發布模式：editorial_workflow = 草稿/審核/發布
 media_folder: "source/images/uploads"      # 媒體檔案上傳存放的 repo 資料夾
