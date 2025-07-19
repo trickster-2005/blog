@@ -1,4 +1,4 @@
 ---
 title: About
 ---
-A college student majoring in Anthropology
+A college student majoring in Anthropology!
