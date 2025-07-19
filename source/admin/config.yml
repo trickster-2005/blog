@@ -7,6 +7,16 @@ publish_mode: editorial_workflow           # 發布模式：editorial_workflow =
 media_folder: "source/images/uploads"      # 媒體檔案上傳存放的 repo 資料夾
 public_folder: "/images/uploads"           # 網站公開媒體檔案 URL 路徑
 
+
+# --------------- Media Library --------
+media_library:
+  name: cloudinary
+  config:
+    cloud_name: dmdeqgoxs
+    api_key: 489739975622724
+
+
+
 # =================== Collections (內容集合) ===================
 collections:
   # ----------- Blog Posts -----------
@@ -37,17 +47,4 @@ collections:
           - { label: "Body", name: "body", widget: "markdown" }
 
 
-# internalioze
-i18n:
-  # Required and can be one of multiple_folders, multiple_files or single_file
-  # multiple_folders - persists files in `<folder>/<locale>/<slug>.<extension>`
-  # multiple_files - persists files in `<folder>/<slug>.<locale>.<extension>`
-  # single_file - persists a single file in `<folder>/<slug>.<extension>`
-  structure: multiple_folders
 
-  # Required - a list of locales to show in the editor UI
-  locales: [zh-TW ,en]
-
-  # Optional, defaults to the first item in locales.
-  # The locale to be used for fields validation and as a baseline for the entry.
-  default_locale: zh-TW
