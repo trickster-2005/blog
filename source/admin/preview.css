@@ -1,0 +1,15 @@
+blockquote {
+  background-color: rgba(241, 249, 248, 0.76);
+  font-family: serif;
+  font-style: italic;
+  margin: 20px 0;
+}
+blockquote footer {
+  font-size: 14px; /* 假設 font-size 是 14px */
+  margin: 0;
+  font-family: sans-serif;
+}
+blockquote footer cite::before {
+  content: "—";
+  padding: 0 0.5em;
+}
