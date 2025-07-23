@@ -48,6 +48,12 @@ collections:
         fields:
           - { label: "Title", name: "title", widget: "string" }
           - { label: "Body", name: "body", widget: "markdown" }
+      - label: "Creative Coding"                # 頁面名稱
+        name: "Creative Coding"                      # 頁面識別名
+        file: "source/Creative Coding/index.md"      # Hexo 預設 about 頁面檔案
+        fields:
+          - { label: "Title", name: "title", widget: "string" }
+          - { label: "Body", name: "body", widget: "markdown" }
 
 
 
