@@ -11,6 +11,7 @@ media_folder: "source/images/uploads"      # 媒體檔案上傳存放的 repo �
 public_folder: "/images/uploads"           # 網站公開媒體檔案 URL 路徑
 
 
+
 # --------------- Media Library --------
 media_library:
   name: cloudinary
