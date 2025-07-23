@@ -3,6 +3,15 @@ title: Creative Coding
 ---
 ### p5.js
 
-### hydra video synth
+* WebGL\
+  demo / source code
+* ml5.js\
+  demo / source code
+* game
+* else
 
-![](https://res.cloudinary.com/dmdeqgoxs/image/upload/v1753249383/%E6%9C%AA%E5%91%BD%E5%90%8D-1_g8oh8w.png)
+### Hydra Video Synth
+
+> <https://github.com/trickster-2005/hydra>
+
+![](https://res.cloudinary.com/dmdeqgoxs/image/upload/v1753249941/%E6%9C%AA%E5%91%BD%E5%90%8D-2_tj1q2f.png)
