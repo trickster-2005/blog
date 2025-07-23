@@ -42,15 +42,15 @@ collections:
   - name: "pages"                          # collection 名稱
     label: "Pages"                         # 後台顯示名稱
     files:                                 # file-based collection (指定單一檔案)
-      - label: "About Page"                # 頁面名稱
+      - label: "About"                # 頁面名稱
         name: "about"                      # 頁面識別名
         file: "source/About/index.md"      # Hexo 預設 about 頁面檔案
         fields:
           - { label: "Title", name: "title", widget: "string" }
           - { label: "Body", name: "body", widget: "markdown" }
-      - label: "Creative Coding"                # 頁面名稱
-        name: "Creative Coding"                      # 頁面識別名
-        file: "source/Creative Coding/index.md"      # Hexo 預設 about 頁面檔案
+      - label: "Creative-Coding"                # 頁面名稱
+        name: "Creative-Coding"                      # 頁面識別名
+        file: "source/Creative-Coding/index.md"      # Hexo 預設 about 頁面檔案
         fields:
           - { label: "Title", name: "title", widget: "string" }
           - { label: "Body", name: "body", widget: "markdown" }
