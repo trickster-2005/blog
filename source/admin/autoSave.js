@@ -1,3 +1,6 @@
+// this script allow user to type "ctrl+s" to save the draft instead of click save button
+
+// 因為是動態載入class 不固定只能用內文方式找
 function findSaveButton() {
   const buttons = document.querySelectorAll("button");
   for (const btn of buttons) {
