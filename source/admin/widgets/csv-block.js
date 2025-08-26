@@ -1,4 +1,4 @@
-console.log("✅ csv-block-no-react 基本版本已載入！");
+console.log("✅ csv-block-no-react 基本版本（含 debug）已載入！");
 
 CMS.registerEditorComponent({
   id: "csvblock",
@@ -9,29 +9,33 @@ CMS.registerEditorComponent({
   toBlock: obj => "```csv\n" + (obj.csv || "") + "\n```",
   toPreview: function(obj) {
     const containerId = "csv-preview-" + Math.random().toString(36).substr(2, 9);
-
     console.log("toPreview called, containerId:", containerId);
-    console.log("Initial CSV data:", obj.csv);
 
-    // 延遲初始化表格
-    setTimeout(() => {
+    // 這裡初始化預設資料，如果 obj.csv 沒內容
+    const initialData = obj.csv.trim() ? 
+      obj.csv.trim().split("\n").map(r => r.split(",")) : 
+      [
+        ["年齡", "日期", "類別", "備註"],
+        [20, "2025-01-01", "其他", "示例"],
+        [100, "2025-01-01", "其他", "示例"]
+      ];
+
+    console.log("Initial CSV data:", initialData);
+
+    // 延遲初始化 Handsontable
+    const initInterval = setInterval(() => {
       const container = document.getElementById(containerId);
       if (!container) {
-        console.warn("Container not found for Handsontable:", containerId);
+        console.log("Container not found yet for Handsontable:", containerId);
         return;
       }
 
-      const data = obj.csv.trim()
-        ? obj.csv.trim().split("\n").map(r => r.split(","))
-        : [
-            ["範例1", "範例2", "範例3"],
-            ["資料A", "資料B", "資料C"]
-          ];
+      console.log("Container found, initializing Handsontable:", containerId);
 
-      console.log("Initializing Handsontable with data:", data);
+      clearInterval(initInterval);
 
       const hot = new Handsontable(container, {
-        data: data,
+        data: initialData,
         rowHeaders: true,
         colHeaders: true,
         licenseKey: "non-commercial-and-evaluation",
@@ -40,16 +44,14 @@ CMS.registerEditorComponent({
         columnSorting: true,
         stretchH: "all",
         afterChange: (changes, source) => {
-          if (!changes) return;
-
+          if (source === "loadData") return;
           const updatedCSV = hot.getData().map(r => r.join(",")).join("\n");
           obj.csv = updatedCSV;
-
-          console.log("afterChange triggered, source:", source);
-          console.log("Updated CSV:", updatedCSV);
+          console.log(`Updated CSV for ${containerId}:`, obj.csv);
         }
       });
-    }, 0);
+
+    }, 50);
 
     return `<div id="${containerId}" style="height: 300px;"></div>`;
   }
