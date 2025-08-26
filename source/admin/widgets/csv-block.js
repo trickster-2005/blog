@@ -1,54 +1,54 @@
-console.log("✅ csv-block.js loaded");
+CMS.registerEditorComponent({
+  id: "csv-table",
+  label: "CSV Table",
+  fields: [
+    {
+      name: "csv",
+      label: "CSV Content",
+      widget: "text"
+    }
+  ],
+  pattern: /^<csv-table>([\s\S]*?)<\/csv-table>$/m,
+  fromBlock: function(match) {
+    return { csv: match[1].trim() };
+  },
+  toBlock: function(data) {
+    return `<csv-table>\n${data.csv}\n</csv-table>`;
+  },
+  toPreview: function(data) {
+    // 將 CSV 字串渲染成 HTML table
+    const rows = data.csv.split("\n").map(r => r.split(","));
+    const htmlRows = rows.map(r => "<tr>" + r.map(c => `<td>${c}</td>`).join("") + "</tr>");
+    return `<table border="1" style="border-collapse: collapse;">${htmlRows.join("")}</table>`;
+  },
+  control: CMS.createClass({
+    componentDidMount: function() {
+      // 建立 Handsontable
+      const container = document.createElement("div");
+      container.style.width = "100%";
+      container.style.height = "300px";
+      this.el.appendChild(container);
 
-// 定義 CSV Widget
-class CSVWidget {
-  constructor({ el, value, onChange }) {
-    this.el = el;
-    this.value = value || "Name,Age,Gender\nAlice,23,Female\nBob,30,Male";
-    this.onChange = onChange;
+      const data = (this.props.value || "").split("\n").map(r => r.split(","));
 
-    // 建立 Handsontable 容器
-    this.container = document.createElement("div");
-    this.container.style.width = "100%";
-    this.container.style.height = "300px"; // 可自訂高度
-    this.el.appendChild(this.container);
-
-    this.initTable();
-  }
-
-  initTable() {
-    const data = this.value.trim().split("\n").map(r => r.split(","));
-    this.hot = new Handsontable(this.container, {
-      data,
-      rowHeaders: true,
-      colHeaders: true,
-      licenseKey: "non-commercial-and-evaluation",
-      contextMenu: true,
-      filters: true,
-      columnSorting: true,
-      stretchH: "all",
-      afterChange: () => this.updateValue()
-    });
-  }
-
-  updateValue() {
-    const updatedCSV = this.hot.getData().map(r => r.join(",")).join("\n");
-    if (this.onChange) this.onChange(updatedCSV);
-  }
-
-  // CMS widget API
-  getValue() {
-    return this.hot.getData().map(r => r.join(",")).join("\n");
-  }
-
-  setValue(value) {
-    this.hot.loadData(value.trim().split("\n").map(r => r.split(",")));
-  }
-}
-
-// 註冊 CMS Widget
-CMS.registerWidget("csv-block", CSVWidget, {
-  // 對應 Markdown field 的序列化
-  toString: widgetValue => widgetValue || "",
-  fromString: str => str || ""
+      this.hot = new Handsontable(container, {
+        data: data,
+        rowHeaders: true,
+        colHeaders: true,
+        licenseKey: "non-commercial-and-evaluation",
+        contextMenu: true,
+        filters: true,
+        columnSorting: true,
+        stretchH: "all",
+        afterChange: () => {
+          const updatedCSV = this.hot.getData().map(r => r.join(",")).join("\n");
+          this.props.onChange(updatedCSV);
+        }
+      });
+    },
+    render: function() {
+      this.el = h('div', {className: this.props.classNameWrapper});
+      return this.el;
+    }
+  })
 });
