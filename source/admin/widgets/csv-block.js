@@ -1,4 +1,4 @@
-console.log("✅ csv-block 可運行版本已載入！");
+console.log("✅ csv-block-no-react 基本版本已載入！");
 
 CMS.registerEditorComponent({
   id: "csvblock",
@@ -10,92 +10,45 @@ CMS.registerEditorComponent({
   toPreview: function(obj) {
     const containerId = "csv-preview-" + Math.random().toString(36).substr(2, 9);
 
+    console.log("toPreview called, containerId:", containerId);
+    console.log("Initial CSV data:", obj.csv);
+
+    // 延遲初始化表格
     setTimeout(() => {
       const container = document.getElementById(containerId);
-      if (!container) return;
-
-      // 建立操作按鈕區
-      const btnContainer = document.createElement("div");
-      btnContainer.style.marginBottom = "8px";
-      container.appendChild(btnContainer);
-
-      // 如果沒有 CSV，使用預設資料
-      if (!obj.csv || !obj.csv.trim()) {
-        obj.csv = `姓名,年齡,類別
-Alice,23,其他
-Bob,30,其他`;
+      if (!container) {
+        console.warn("Container not found for Handsontable:", containerId);
+        return;
       }
 
-      // 解析 CSV
-      const rawData = obj.csv.trim();
-      const rows = rawData ? rawData.split("\n").map(r => r.split(",")) : [[]];
-      const hasHeader = rows.length && rows[0].some(cell => cell.trim() !== "");
-      const colHeaders = hasHeader ? rows[0] : true;
-      const data = hasHeader ? rows.slice(1) : rows;
+      const data = obj.csv.trim()
+        ? obj.csv.trim().split("\n").map(r => r.split(","))
+        : [
+            ["範例1", "範例2", "範例3"],
+            ["資料A", "資料B", "資料C"]
+          ];
 
-      // 初始化 Handsontable
+      console.log("Initializing Handsontable with data:", data);
+
       const hot = new Handsontable(container, {
         data: data,
         rowHeaders: true,
-        colHeaders: colHeaders,
+        colHeaders: true,
         licenseKey: "non-commercial-and-evaluation",
         contextMenu: true,
         filters: true,
         columnSorting: true,
         stretchH: "all",
-        afterChange: () => {
-          const updatedData = hot.getData();
-          const updatedCSV = hasHeader
-            ? [colHeaders.join(","), ...updatedData.map(r => r.join(","))].join("\n")
-            : updatedData.map(r => r.join(",")).join("\n");
+        afterChange: (changes, source) => {
+          if (!changes) return;
+
+          const updatedCSV = hot.getData().map(r => r.join(",")).join("\n");
           obj.csv = updatedCSV;
+
+          console.log("afterChange triggered, source:", source);
+          console.log("Updated CSV:", updatedCSV);
         }
       });
-
-      // 新增列
-      const addRowBtn = document.createElement("button");
-      addRowBtn.textContent = "新增列";
-      addRowBtn.onclick = () => hot.alter("insert_row");
-      btnContainer.appendChild(addRowBtn);
-
-      // 新增欄
-      const addColBtn = document.createElement("button");
-      addColBtn.textContent = "新增欄";
-      addColBtn.onclick = () => hot.alter("insert_col");
-      btnContainer.appendChild(addColBtn);
-
-      // 匯入 CSV
-      const importBtn = document.createElement("button");
-      importBtn.textContent = "匯入 CSV";
-      importBtn.onclick = () => {
-        const fileInput = document.createElement("input");
-        fileInput.type = "file";
-        fileInput.accept = ".csv";
-        fileInput.onchange = e => {
-          const file = e.target.files[0];
-          Papa.parse(file, {
-            complete: res => {
-              hot.loadData(res.data);
-              obj.csv = res.data.map(r => r.join(",")).join("\n");
-            }
-          });
-        };
-        fileInput.click();
-      };
-      btnContainer.appendChild(importBtn);
-
-      // 匯出 CSV
-      const exportBtn = document.createElement("button");
-      exportBtn.textContent = "匯出 CSV";
-      exportBtn.onclick = () => {
-        const csvContent = hot.getData().map(r => r.join(",")).join("\n");
-        const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(blob);
-        a.download = "export.csv";
-        a.click();
-      };
-      btnContainer.appendChild(exportBtn);
     }, 0);
 
     return `<div id="${containerId}" style="height: 300px;"></div>`;
