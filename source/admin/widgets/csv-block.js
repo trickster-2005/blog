@@ -20,47 +20,55 @@ CMS.registerEditorComponent({
   }
 });
 
-// --- Handsontable CSV 編輯器 ---
-CMS.registerWidget("csv-editor", (opts) => {
-  const container = document.createElement("div");
-  container.style.height = "300px";
-  container.style.overflow = "hidden";
+// --- Handsontable CSV 編輯器 Widget (React) ---
+const React = CMS.React;
 
-  let hot = null; // 預先宣告
+class CsvEditorControl extends React.Component {
+  constructor(props) {
+    super(props);
+    this.containerRef = React.createRef();
+    this.hot = null;
+  }
 
-  function parseCSV(str) {
+  componentDidMount() {
+    this.initTable(this.props.value || "");
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.value !== this.props.value && this.hot) {
+      this.hot.loadData(this.parseCSV(this.props.value || ""));
+    }
+  }
+
+  parseCSV(str) {
     if (!str) return [[]];
     return str.trim().split("\n").map(r => r.split(","));
   }
 
-  // 初始化 Handsontable
-  hot = new Handsontable(container, {
-    data: parseCSV(opts.value || ""),
-    rowHeaders: true,
-    colHeaders: true,
-    contextMenu: true,
-    licenseKey: "non-commercial-and-evaluation",
-    stretchH: "all",
-    afterChange: () => {
-      if (!hot) return; // 防止初始化階段呼叫
-      const data = hot.getData();
-      const csv = data.map(r => r.join(",")).join("\n");
-      console.log("🔄 CSV 更新:", csv); // 控制台輸出
-      opts.onChange(csv);
-    }
-  });
+  initTable(initialCSV) {
+    this.hot = new Handsontable(this.containerRef.current, {
+      data: this.parseCSV(initialCSV),
+      rowHeaders: true,
+      colHeaders: true,
+      contextMenu: true,
+      stretchH: "all",
+      licenseKey: "non-commercial-and-evaluation",
+      afterChange: () => {
+        if (!this.hot) return;
+        const data = this.hot.getData();
+        const csv = data.map(r => r.join(",")).join("\n");
+        console.log("🔄 CSV 更新:", csv);
+        this.props.onChange(csv);
+      }
+    });
+  }
 
-  return {
-    render: (el) => {
-      el.appendChild(container);
-    },
-    getValue: () => {
-      if (!hot) return "";
-      const data = hot.getData();
-      return data.map(r => r.join(",")).join("\n");
-    },
-    setValue: (val) => {
-      if (hot) hot.loadData(parseCSV(val || ""));
-    }
-  };
-});
+  render() {
+    return React.createElement("div", {
+      ref: this.containerRef,
+      style: { height: "300px" }
+    });
+  }
+}
+
+CMS.registerWidget("csv-editor", CsvEditorControl);
