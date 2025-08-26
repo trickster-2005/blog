@@ -1,9 +1,8 @@
+// ===== CSV Block Markdown Component =====
 CMS.registerEditorComponent({
   id: "csvblock",
   label: "CSV 表格",
-  fields: [
-    { name: "csv", label: "CSV 內容", widget: "text" }
-  ],
+  fields: [{ name: "csv", label: "CSV 內容", widget: "hidden" }],
   pattern: /^```csv\n([\s\S]*?)\n```$/,
   fromBlock: match => ({ csv: match[1] }),
   toBlock: obj => "```csv\n" + (obj.csv || "") + "\n```",
@@ -16,16 +15,87 @@ CMS.registerEditorComponent({
   }
 });
 
-// ✅ 加一個按鈕，打開 /csv-editor/ 並帶資料
-document.addEventListener("DOMContentLoaded", () => {
-  const toolbar = document.querySelector(".nc-visual-editor-toolbar");
-  if (toolbar) {
-    const btn = document.createElement("button");
-    btn.innerText = "用 CSV 編輯器開啟";
-    btn.onclick = () => {
-      const csvData = prompt("這裡理論上可以帶現有 CSV → 編輯器"); 
-      window.open("/csv-editor/?data=" + encodeURIComponent(csvData));
-    };
-    toolbar.appendChild(btn);
+// ===== Handsontable CSV Editor Widget =====
+CMS.registerWidget("csv-editor", class extends React.Component {
+  constructor(props) {
+    super(props);
+    this.containerRef = React.createRef();
+    this.state = { dark: false };
+  }
+
+  componentDidMount() {
+    this.initTable(this.props.value || "");
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.value !== this.props.value && this.hot) {
+      this.hot.loadData(this.parseCSV(this.props.value || ""));
+    }
+  }
+
+  initTable(initialCSV) {
+    this.hot = new Handsontable(this.containerRef.current, {
+      data: this.parseCSV(initialCSV),
+      rowHeaders: true,
+      colHeaders: true,
+      licenseKey: "non-commercial-and-evaluation",
+      contextMenu: true,
+      filters: true,
+      columnSorting: true,
+      stretchH: "all",
+      afterChange: () => {
+        const data = this.hot.getData();
+        const csv = data.map(r => r.join(",")).join("\n");
+        this.props.onChange(csv);
+      }
+    });
+  }
+
+  parseCSV(str) {
+    if (!str) return [[]];
+    return str.trim().split("\n").map(r => r.split(","));
+  }
+
+  exportCSV = () => {
+    const data = this.hot.getSourceData();
+    const headers = this.hot.getColHeader();
+    const csv = Papa.unparse(data, { columns: headers });
+    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "edited.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  importCSV = () => {
+    const pasted = prompt("請貼上 CSV 內容：");
+    if (!pasted) return;
+    Papa.parse(pasted, {
+      header: true,
+      skipEmptyLines: "greedy",
+      complete: (res) => {
+        this.hot.updateSettings({ data: res.data, colHeaders: res.meta.fields });
+      }
+    });
+  }
+
+  toggleDark = () => {
+    this.setState({ dark: !this.state.dark });
+    document.body.classList.toggle("dark");
+  }
+
+  render() {
+    return React.createElement("div", null,
+      // toolbar
+      React.createElement("div", { style: { marginBottom: "8px" } },
+        React.createElement("button", { onClick: this.importCSV }, "匯入 CSV"),
+        React.createElement("button", { onClick: this.exportCSV, style: { marginLeft: "6px" } }, "匯出 CSV"),
+        React.createElement("button", { onClick: this.toggleDark, style: { marginLeft: "6px" } }, this.state.dark ? "亮色模式" : "深色模式")
+      ),
+      // table
+      React.createElement("div", { ref: this.containerRef, style: { height: "300px" } })
+    );
   }
 });
