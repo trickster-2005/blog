@@ -48,4 +48,5 @@ CMS.registerWidget("csv-widget", {
       hotInstance.loadData(data);
     }
   }
+  
 });
