@@ -1,6 +1,10 @@
 // ===== CSV Block Markdown Component =====
 console.log("✅ csv-block.js 已經載入！");
 
+// 把 Decap 內建的 React 引出來
+const React = window.React;
+const ReactDOM = window.ReactDOM;
+
 CMS.registerEditorComponent({
   id: "csvblock",
   label: "CSV 表格",
