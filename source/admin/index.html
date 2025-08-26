@@ -1,32 +1,32 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="robots" content="noindex" />
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex" />
+  <title>Content Manager</title>
 
-    <!-- Decap 身分驗證 -->
-    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  <!-- Handsontable CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/handsontable@14.3.0/dist/handsontable.full.min.css">
 
-    <!-- Handsontable CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.css" />
+  <!-- 你可以額外引入自己的樣式 -->
+  <!-- <link rel="stylesheet" href="/admin/style.css"> -->
+</head>
+<body>
+  <!-- Decap CMS 核心 -->
+  <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
 
-    <title>Content Manager</title>
-  </head>
-  <body>
-    <!-- Decap CMS -->
-    <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+  <!-- Handsontable + PapaParse -->
+  <script src="https://cdn.jsdelivr.net/npm/handsontable@14.3.0/dist/handsontable.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 
-    <!-- Handsontable + PapaParse (放在 body，確保先載入 CMS) -->
-    <script src="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <!-- 你的自訂 widget -->
+  <script src="/admin/widgets/csv-block.js"></script>
 
-    <!-- 你的自訂 widget -->
-    <script src="/admin/widgets/csv-block.js"></script>
-    <script src="/admin/autoSave.js"></script>
-
-    <script>
-      CMS.registerPreviewStyle("/admin/preview.css");
-    </script>
-  </body>
+  <!-- CMS 設定 -->
+  <script>
+    // 告訴 Decap 在預覽面板載入你的 CSS
+    CMS.registerPreviewStyle("/admin/preview.css");
+  </script>
+</body>
 </html>
