@@ -1,7 +1,7 @@
 // ===== csv-block.js =====
 console.log("✅ csv-block.js 已載入！");
 
-// 註冊一個自訂編輯器元件 (Markdown CSV 區塊)
+// --- Markdown 區塊元件 ---
 CMS.registerEditorComponent({
   id: "csvblock",
   label: "CSV 表格",
@@ -20,21 +20,21 @@ CMS.registerEditorComponent({
   }
 });
 
-// ===== csv-editor widget (Handsontable) =====
+// --- Handsontable CSV 編輯器 ---
 CMS.registerWidget("csv-editor", (opts) => {
-  // 建立容器
   const container = document.createElement("div");
   container.style.height = "300px";
   container.style.overflow = "hidden";
 
-  // 將 CSV 轉成二維陣列
+  let hot = null; // 預先宣告
+
   function parseCSV(str) {
     if (!str) return [[]];
     return str.trim().split("\n").map(r => r.split(","));
   }
 
-  // 初始 Handsontable
-  const hot = new Handsontable(container, {
+  // 初始化 Handsontable
+  hot = new Handsontable(container, {
     data: parseCSV(opts.value || ""),
     rowHeaders: true,
     colHeaders: true,
@@ -42,25 +42,25 @@ CMS.registerWidget("csv-editor", (opts) => {
     licenseKey: "non-commercial-and-evaluation",
     stretchH: "all",
     afterChange: () => {
+      if (!hot) return; // 防止初始化階段呼叫
       const data = hot.getData();
       const csv = data.map(r => r.join(",")).join("\n");
+      console.log("🔄 CSV 更新:", csv); // 控制台輸出
       opts.onChange(csv);
     }
   });
 
   return {
-    // 編輯器要 render 的元素
     render: (el) => {
       el.appendChild(container);
     },
-    // 當 Decap CMS 要取得值
     getValue: () => {
+      if (!hot) return "";
       const data = hot.getData();
       return data.map(r => r.join(",")).join("\n");
     },
-    // 當 Decap CMS 設定值 (例如從 markdown 載入)
     setValue: (val) => {
-      hot.loadData(parseCSV(val || ""));
+      if (hot) hot.loadData(parseCSV(val || ""));
     }
   };
 });
