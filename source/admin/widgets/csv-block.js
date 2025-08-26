@@ -6,7 +6,7 @@ CMS.registerEditorComponent({
   ],
   pattern: /^<csv-table>([\s\S]*?)<\/csv-table>$/m,
   fromBlock: function(match) {
-    // 如果 Markdown 中已有內容就用它，否則使用預設資料
+    // 如果 Markdown 有內容就用它，否則填入預設資料
     const content = match[1].trim();
     return { csv: content || "Name,Age,Gender\nAlice,23,Female\nBob,30,Male" };
   },
@@ -18,14 +18,15 @@ CMS.registerEditorComponent({
     const htmlRows = rows.map(r => "<tr>" + r.map(c => `<td>${c}</td>`).join("") + "</tr>");
     return `<table border="1" style="border-collapse: collapse;">${htmlRows.join("")}</table>`;
   },
-  control: CMS.createClass({
+  control: createClass({
     componentDidMount: function() {
+      // 建立 Handsontable 容器
       const container = document.createElement("div");
       container.style.width = "100%";
       container.style.height = "300px";
       this.el.appendChild(container);
 
-      // 若 props.value 為空，使用預設資料
+      // 使用 Markdown 或預設 CSV
       const csvData = this.props.value && this.props.value.trim()
         ? this.props.value
         : "Name,Age,Gender\nAlice,23,Female\nBob,30,Male";
