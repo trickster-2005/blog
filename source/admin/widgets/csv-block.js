@@ -2,8 +2,8 @@
 console.log("✅ csv-block.js 已經載入！");
 
 // 把 Decap 內建的 React 引出來
-const React = window.React;
-const ReactDOM = window.ReactDOM;
+const React = CMS.React;
+const ReactDOM = CMS.ReactDOM;
 
 CMS.registerEditorComponent({
   id: "csvblock",
