@@ -1,14 +1,14 @@
 // ===== CSV Block Markdown Component =====
-console.log("✅ csv-block-no-react.js 已載入！");
+console.log("✅ csv-block-pure-js.js 已載入！");
 
 CMS.registerEditorComponent({
   id: "csvblock",
   label: "CSV 表格",
-  fields: [{ name: "csv", label: "CSV 內容", widget: "csv-editor-no-react" }],
+  fields: [{ name: "csv", label: "CSV 內容", widget: "csv-widget" }],
   pattern: /^```csv\n([\s\S]*?)\n```$/,
-  fromBlock: match => ({ csv: match[1] }),
-  toBlock: obj => "```csv\n" + (obj.csv || "") + "\n```",
-  toPreview: obj => {
+  fromBlock: function(match) { return { csv: match[1] }; },
+  toBlock: function(obj) { return "```csv\n" + (obj.csv || "") + "\n```"; },
+  toPreview: function(obj) {
     if (!obj.csv) return "<em>(空表格)</em>";
     const rows = obj.csv.trim().split("\n").map(r => r.split(","));
     return `<table border="1" style="border-collapse: collapse;">
@@ -17,32 +17,30 @@ CMS.registerEditorComponent({
   }
 });
 
-// ===== Handsontable CSV Editor Widget (純 JS) =====
-CMS.registerWidget("csv-editor-no-react", class {
-  constructor({ onChange, value }) {
-    this.onChange = onChange;
-    this.value = value || "";
+// ===== Handsontable CSV Widget =====
+var CSVWidgetControl = createClass({
+  getInitialState: function() {
+    return { dark: false };
+  },
+
+  componentDidMount: function() {
     this.container = document.createElement("div");
     this.toolbar = document.createElement("div");
-    this.hot = null;
-
-    this.initToolbar();
-    this.initTable();
-  }
-
-  initToolbar() {
     this.toolbar.style.marginBottom = "8px";
 
-    const importBtn = document.createElement("button");
+    // 匯入按鈕
+    var importBtn = document.createElement("button");
     importBtn.textContent = "匯入 CSV";
-    importBtn.addEventListener("click", () => this.importCSV());
+    importBtn.addEventListener("click", this.importCSV.bind(this));
 
-    const exportBtn = document.createElement("button");
+    // 匯出按鈕
+    var exportBtn = document.createElement("button");
     exportBtn.textContent = "匯出 CSV";
     exportBtn.style.marginLeft = "6px";
-    exportBtn.addEventListener("click", () => this.exportCSV());
+    exportBtn.addEventListener("click", this.exportCSV.bind(this));
 
-    const toggleBtn = document.createElement("button");
+    // 深色模式切換
+    var toggleBtn = document.createElement("button");
     toggleBtn.textContent = "深色模式";
     toggleBtn.style.marginLeft = "6px";
     toggleBtn.addEventListener("click", () => {
@@ -51,17 +49,16 @@ CMS.registerWidget("csv-editor-no-react", class {
     });
 
     this.toolbar.append(importBtn, exportBtn, toggleBtn);
-  }
+    this.container.append(this.toolbar);
 
-  initTable() {
-    this.hotContainer = document.createElement("div");
-    this.hotContainer.style.height = "300px";
+    // Handsontable 容器
+    this.tableDiv = document.createElement("div");
+    this.tableDiv.style.height = "300px";
+    this.container.append(this.tableDiv);
 
-    this.container.append(this.toolbar, this.hotContainer);
-
-    const data = this.parseCSV(this.value);
-
-    this.hot = new Handsontable(this.hotContainer, {
+    // 初始化 Handsontable
+    var data = this.parseCSV(this.props.value || "");
+    this.hot = new Handsontable(this.tableDiv, {
       data: data,
       rowHeaders: true,
       colHeaders: true,
@@ -70,56 +67,55 @@ CMS.registerWidget("csv-editor-no-react", class {
       filters: true,
       columnSorting: true,
       stretchH: "all",
-      afterChange: () => this.updateValue()
+      afterChange: () => { this.updateValue(); }
     });
-  }
+  },
 
-  parseCSV(str) {
+  parseCSV: function(str) {
     if (!str) return [[]];
     return str.trim().split("\n").map(r => r.split(","));
-  }
+  },
 
-  updateValue() {
-    const data = this.hot.getData();
-    const csv = data.map(r => r.join(",")).join("\n");
-    this.value = csv;
-    if (typeof this.onChange === "function") this.onChange(csv);
-  }
+  updateValue: function() {
+    var data = this.hot.getData();
+    var csv = data.map(r => r.join(",")).join("\n");
+    if (typeof this.props.onChange === "function") {
+      this.props.onChange(csv);
+    }
+  },
 
-  importCSV() {
-    const pasted = prompt("請貼上 CSV 內容：");
+  importCSV: function() {
+    var pasted = prompt("請貼上 CSV 內容：");
     if (!pasted) return;
-
+    var self = this;
     Papa.parse(pasted, {
       header: true,
       skipEmptyLines: "greedy",
-      complete: (res) => {
-        const data = res.data.map(r => Object.values(r));
-        const headers = res.meta.fields;
-        this.hot.updateSettings({ data: data, colHeaders: headers });
-        this.updateValue();
+      complete: function(res) {
+        var data = res.data.map(r => Object.values(r));
+        var headers = res.meta.fields;
+        self.hot.updateSettings({ data: data, colHeaders: headers });
+        self.updateValue();
       }
     });
-  }
+  },
 
-  exportCSV() {
-    const data = this.hot.getData();
-    const headers = this.hot.getColHeader();
-    const csv = Papa.unparse(data, { columns: headers });
-    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
+  exportCSV: function() {
+    var data = this.hot.getData();
+    var headers = this.hot.getColHeader();
+    var csv = Papa.unparse(data, { columns: headers });
+    var blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
     a.href = url;
     a.download = "edited.csv";
     a.click();
     URL.revokeObjectURL(url);
-  }
+  },
 
-  focus() {
-    if (this.hot) this.hot.selectCell(0, 0);
-  }
-
-  getElement() {
-    return this.container;
+  render: function() {
+    return h("div", { ref: el => el && el.appendChild(this.container) });
   }
 });
+
+CMS.registerWidget("csv-widget", CSVWidgetControl);
