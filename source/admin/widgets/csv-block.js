@@ -1,52 +1,29 @@
-console.log("✅ csv-widget-handsontable 基本版已載入！");
+console.log("✅ csv-widget-basic 已載入！");
 
+// 註冊 Widget
 CMS.registerWidget("csv-widget", {
   init: function(opts) {
-    // 建立容器
-    const container = document.createElement("div");
-    container.style.width = "100%";
-    container.style.height = "300px";
+    // 建立 textarea
+    const textarea = document.createElement("textarea");
+    textarea.style.width = "100%";
+    textarea.style.height = "200px";
+    textarea.value = opts.value || "";
 
-    // 將初始 CSV 轉成二維陣列
-    function parseCSV(csv) {
-      if (!csv) return [[]];
-      return csv.split("\n").map(row => row.split(","));
-    }
-
-    // 將二維陣列轉回 CSV
-    function toCSV(data) {
-      return data.map(row => row.join(",")).join("\n");
-    }
-
-    // 建立 Handsontable
-    const hot = new Handsontable(container, {
-      data: parseCSV(opts.value),
-      rowHeaders: true,
-      colHeaders: true,
-      width: "100%",
-      height: "300",
-      stretchH: "all",
-      afterChange: function(changes, source) {
-        if (source === 'loadData') return; // 避免初始化觸發
-        opts.onChange(toCSV(hot.getData()));
-      }
+    // 當 textarea 內容改變時更新 field 值
+    textarea.addEventListener("input", function() {
+      opts.onChange(textarea.value);
     });
 
-    return container;
+    return textarea;
   },
 
+  // 讀取值
   value: function(el) {
-    // 從 Handsontable 取值
-    const hotInstance = Handsontable.getInstance(el);
-    return hotInstance ? hotInstance.getData().map(row => row.join(",")).join("\n") : "";
+    return el.value;
   },
 
+  // 設定值
   setValue: function(el, val) {
-    const hotInstance = Handsontable.getInstance(el);
-    if (hotInstance) {
-      const data = val ? val.split("\n").map(row => row.split(",")) : [[]];
-      hotInstance.loadData(data);
-    }
+    el.value = val || "";
   }
-  
 });
