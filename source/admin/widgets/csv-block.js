@@ -1,206 +1,233 @@
-// csv-block.js (Decap CMS widget)
-CMS.registerWidget("csv-block", function (opts) {
-  return class CsvBlockControl extends CMS.Widget {
-    constructor(config, onChange, widgetArgs) {
-      super(config, onChange, widgetArgs);
+// ====== csv-block.js ======
+CMS.registerWidget('csv-block', class {
+  constructor(config, onChange) {
+    this.onChange = onChange;
+    this.container = document.createElement('div');
+    this.container.style.width = '100%';
+    this.container.style.height = '400px';
+    this.container.style.position = 'relative';
 
-      // 建立容器
-      this.container = document.createElement("div");
-      this.container.style.width = "100%";
-      this.container.style.height = "400px";
+    // ====== 建立工具列 ======
+    const toolbar = document.createElement('div');
+    toolbar.style.marginBottom = '8px';
+    toolbar.style.display = 'flex';
+    toolbar.style.flexWrap = 'wrap';
+    toolbar.style.gap = '4px';
 
-      // 初始化表格
-      const defaultData = [{ 年齡: 20, 日期: "2025-01-01", 類別: "其他", 備註: "示例" }];
-      const defaultHeaders = ["年齡", "日期", "類別", "備註"];
-      const defaultColumns = defaultHeaders.map((h) => ({ data: h, type: "text" }));
+    const makeButton = (text, callback) => {
+      const btn = document.createElement('button');
+      btn.textContent = text;
+      btn.type = 'button';
+      btn.addEventListener('click', callback);
+      return btn;
+    };
 
-      this.hot = new Handsontable(this.container, {
-        data: defaultData,
-        columns: defaultColumns,
-        colHeaders: defaultHeaders,
-        rowHeaders: true,
-        licenseKey: "non-commercial-and-evaluation",
-        contextMenu: true,
-        dropdownMenu: true,
-        filters: true,
-        columnSorting: true,
-        manualColumnResize: true,
-        manualRowResize: true,
-        manualColumnMove: true,
-        manualRowMove: true,
-        autoWrapRow: false,
-        undo: true,
-        copyPaste: true,
-        height: "100%",
-        stretchH: "all",
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = '.csv,text/csv';
+    fileInput.style.display = 'none';
+
+    const uploadBtn = makeButton('上傳 CSV', () => fileInput.click());
+    toolbar.appendChild(uploadBtn);
+    toolbar.appendChild(fileInput);
+
+    const pasteBtn = makeButton('貼上 CSV', () => pasteDlg.showModal());
+    toolbar.appendChild(pasteBtn);
+
+    const addRowBtn = makeButton('新增列', () => this.addRow());
+    const removeRowBtn = makeButton('刪除列', () => this.removeRow());
+    const addColBtn = makeButton('新增欄', () => this.addCol());
+    const removeColBtn = makeButton('刪除欄', () => this.removeCol());
+    toolbar.appendChild(addRowBtn);
+    toolbar.appendChild(removeRowBtn);
+    toolbar.appendChild(addColBtn);
+    toolbar.appendChild(removeColBtn);
+
+    const exportCsvBtn = makeButton('匯出 CSV', () => this.exportCsv());
+    const exportJsonBtn = makeButton('匯出 JSON', () => this.exportJson());
+    toolbar.appendChild(exportCsvBtn);
+    toolbar.appendChild(exportJsonBtn);
+
+    const darkBtn = makeButton('深色模式', () => {
+      this.container.classList.toggle('dark');
+      darkBtn.textContent = this.container.classList.contains('dark') ? '淺色模式' : '深色模式';
+    });
+    toolbar.appendChild(darkBtn);
+
+    this.container.appendChild(toolbar);
+
+    // ====== 建立 Handsontable container ======
+    this.hotDiv = document.createElement('div');
+    this.hotDiv.style.width = '100%';
+    this.hotDiv.style.height = 'calc(100% - 40px)';
+    this.container.appendChild(this.hotDiv);
+
+    // ====== 建立貼上對話框 ======
+    const pasteDlg = document.createElement('dialog');
+    pasteDlg.style.width = '500px';
+    pasteDlg.style.padding = '10px';
+    pasteDlg.innerHTML = `
+      <div>
+        <textarea id="pasteArea" style="width:100%;height:150px"></textarea>
+        <div style="margin-top:4px">
+          <button id="parsePasted" type="button">匯入</button>
+          <button id="cancelDlg" type="button">取消</button>
+        </div>
+      </div>
+    `;
+    pasteDlg.querySelector('#cancelDlg').addEventListener('click', () => pasteDlg.close());
+    pasteDlg.querySelector('#parsePasted').addEventListener('click', () => {
+      const txt = pasteDlg.querySelector('#pasteArea').value || '';
+      if (!txt.trim()) { pasteDlg.close(); return; }
+      Papa.parse(txt, {
+        header: true,
+        skipEmptyLines: true,
+        complete: (res) => {
+          const fields = res.meta.fields || [];
+          this.loadDataWithHeaders(res.data || [], fields);
+          pasteDlg.close();
+        },
       });
+    });
+    this.container.appendChild(pasteDlg);
 
-      // 工具函數
-      this.arrayToObjects = function (data, headers) {
-        return data.map((r) => {
-          const o = {};
-          headers.forEach((h, i) => (o[h] = r[i] ?? ""));
-          return o;
-        });
-      };
+    fileInput.addEventListener('change', (e) => {
+      const f = e.target.files?.[0];
+      if (f) this.parseCSVFile(f);
+      fileInput.value = '';
+    });
 
-      this.loadDataWithHeaders = (rows, headers) => {
-        const cols = headers.map((h) => ({ data: h, type: "text" }));
-        this.hot.updateSettings({ data: rows, columns: cols, colHeaders: headers });
-      };
+    // ====== 初始化表格 ======
+    const defaultSheet = this.buildDefaultSheet();
+    this.headers = defaultSheet.headers;
+    this.columns = defaultSheet.columns;
+    this.data = defaultSheet.data;
 
-      this.getCurrentDataObjects = () => {
-        const headers = this.hot.getColHeader();
-        const data = this.hot.getSourceData();
-        const rows = data.map((r) => {
-          const o = {};
-          headers.forEach((h) => (o[h] = r?.[h] ?? ""));
-          return o;
-        });
-        return { headers, rows };
-      };
+    this.hot = new Handsontable(this.hotDiv, {
+      data: this.data,
+      columns: this.columns,
+      colHeaders: this.headers,
+      rowHeaders: true,
+      licenseKey: 'non-commercial-and-evaluation',
+      contextMenu: true,
+      dropdownMenu: true,
+      filters: true,
+      columnSorting: true,
+      manualColumnResize: true,
+      manualRowResize: true,
+      manualColumnMove: true,
+      manualRowMove: true,
+      autoWrapRow: false,
+      undo: true,
+      copyPaste: true,
+      height: '100%',
+      stretchH: 'all',
+    });
+  }
 
-      // 監聽資料變動回傳到 CMS
-      this.hot.addHook("afterChange", () => {
-        const { rows } = this.getCurrentDataObjects();
-        onChange(rows);
-      });
+  getElement() { return this.container; }
+  getValue() { return this.getCurrentDataObjects().rows || []; }
 
-      // 加入操作按鈕
-      const controls = document.createElement("div");
-      controls.style.marginTop = "5px";
-      controls.innerHTML = `
-        <input type="file" id="csvFileInput" style="display:none" />
-        <button id="uploadCsvBtn">上傳 CSV</button>
-        <button id="pasteCsvBtn">貼上 CSV</button>
-        <button id="blankBtn">建立空白表格</button>
-        <button id="addRowBtn">新增列</button>
-        <button id="removeRowBtn">刪除列</button>
-        <button id="addColBtn">新增欄位</button>
-        <button id="removeColBtn">刪除欄位</button>
-        <button id="exportCsvBtn">匯出 CSV</button>
-        <button id="exportJsonBtn">匯出 JSON</button>
-        <button id="darkModeBtn">深色模式</button>
-      `;
-      this.container.appendChild(controls);
+  buildDefaultSheet() {
+    const headers = ['年齡','日期','類別','備註'];
+    return {
+      headers,
+      columns: headers.map(h => ({ data: h, type: 'text' })),
+      data: [
+        { 年齡: 20, 日期:'2025-01-01', 類別:'其他', 備註:'示例' },
+        { 年齡: 100, 日期:'2025-01-01', 類別:'其他', 備註:'示例' },
+      ]
+    };
+  }
 
-      // 綁定按鈕事件
-      const fileInput = controls.querySelector("#csvFileInput");
-      controls.querySelector("#uploadCsvBtn").addEventListener("click", () => fileInput.click());
-      fileInput.addEventListener("change", (e) => {
-        const f = e.target.files?.[0];
-        if (f) {
-          Papa.parse(f, {
-            header: true,
-            skipEmptyLines: "greedy",
-            complete: (res) => {
-              const headers = res.meta.fields || [];
-              this.loadDataWithHeaders(res.data || [], headers);
-              onChange(res.data || []);
-            },
-          });
-        }
-      });
+  inferColumns(headers) {
+    return headers.map(h => ({ data:h, type:'text' }));
+  }
 
-      controls.querySelector("#pasteCsvBtn").addEventListener("click", () => {
-        const txt = prompt("請貼上 CSV 文字：");
-        if (txt) {
-          Papa.parse(txt, {
-            header: true,
-            skipEmptyLines: "greedy",
-            complete: (res) => {
-              const headers = res.meta.fields || [];
-              this.loadDataWithHeaders(res.data || [], headers);
-              onChange(res.data || []);
-            },
-          });
-        }
-      });
+  loadDataWithHeaders(objs, headersIn) {
+    const cols = this.inferColumns(headersIn);
+    this.hot.updateSettings({ data: objs, columns: cols, colHeaders: headersIn });
+  }
 
-      controls.querySelector("#blankBtn").addEventListener("click", () => {
-        this.loadDataWithHeaders([], []);
-        onChange([]);
-      });
+  parseCSVFile(file) {
+    Papa.parse(file, {
+      header: true,
+      skipEmptyLines: true,
+      complete: (res) => {
+        const fields = res.meta.fields || [];
+        this.loadDataWithHeaders(res.data || [], fields);
+      },
+    });
+  }
 
-      controls.querySelector("#addRowBtn").addEventListener("click", () => {
-        const newRow = {};
-        this.hot.getColHeader().forEach((h) => (newRow[h] = ""));
-        this.hot.updateSettings({ data: [...this.hot.getSourceData(), newRow] });
-      });
+  getCurrentDataObjects() {
+    const headers = this.hot.getColHeader();
+    const data = this.hot.getSourceData();
+    const rows = data.map(r => {
+      const o = {};
+      headers.forEach(h => o[h] = r?.[h] ?? '');
+      return o;
+    });
+    return { headers, rows };
+  }
 
-      controls.querySelector("#removeRowBtn").addEventListener("click", () => {
-        const data = this.hot.getSourceData();
-        data.pop();
-        this.hot.updateSettings({ data });
-      });
+  addRow() {
+    const newRow = {};
+    this.hot.getColHeader().forEach(h => newRow[h]='');
+    this.hot.updateSettings({ data: [...this.hot.getSourceData(), newRow] });
+  }
 
-      controls.querySelector("#addColBtn").addEventListener("click", () => {
-        const colName = prompt("請輸入新欄位名稱：", `Column ${this.hot.countCols() + 1}`);
-        if (!colName) return;
-        const data = this.hot.getSourceData();
-        data.forEach((row) => (row[colName] = ""));
-        const headers = this.hot.getColHeader();
-        const cols = this.hot.getSettings().columns;
-        headers.push(colName);
-        cols.push({ data: colName, type: "text" });
-        this.hot.updateSettings({ colHeaders: headers, columns: cols, data });
-      });
+  removeRow() {
+    const data = this.hot.getSourceData();
+    const sel = this.hot.getSelectedLast();
+    const rowIndex = sel ? sel[0] : data.length-1;
+    data.splice(rowIndex,1);
+    this.hot.updateSettings({ data });
+  }
 
-      controls.querySelector("#removeColBtn").addEventListener("click", () => {
-        const data = this.hot.getSourceData();
-        const headers = this.hot.getColHeader();
-        const cols = this.hot.getSettings().columns;
-        if (!headers.length) return;
-        const colName = headers[headers.length - 1];
-        data.forEach((row) => delete row[colName]);
-        headers.pop();
-        cols.pop();
-        this.hot.updateSettings({ colHeaders: headers, columns: cols, data });
-      });
+  addCol() {
+    const colName = prompt('請輸入新欄位名稱', `Column ${this.hot.countCols()+1}`);
+    if (!colName) return;
+    const headers = this.hot.getColHeader();
+    const cols = this.hot.getSettings().columns;
+    const data = this.hot.getSourceData();
+    data.forEach(r => r[colName]='');
+    headers.push(colName);
+    cols.push({ data: colName, type:'text' });
+    this.hot.updateSettings({ colHeaders: headers, columns: cols, data });
+  }
 
-      controls.querySelector("#exportCsvBtn").addEventListener("click", () => {
-        const { headers, rows } = this.getCurrentDataObjects();
-        const csv = Papa.unparse(rows, { columns: headers });
-        const content = "\uFEFF" + csv;
-        const ts = new Date().toISOString().slice(0, 19);
-        const blob = new Blob([content], { type: "text/csv;charset=utf-8" });
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(blob);
-        a.download = `edited-${ts}.csv`;
-        a.click();
-        URL.revokeObjectURL(a.href);
-      });
+  removeCol() {
+    const sel = this.hot.getSelectedLast();
+    const colIndex = sel ? sel[1] : this.hot.countCols()-1;
+    if (colIndex<0) return;
+    const headers = this.hot.getColHeader();
+    const cols = this.hot.getSettings().columns;
+    const data = this.hot.getSourceData();
+    data.forEach(r => delete r[headers[colIndex]]);
+    headers.splice(colIndex,1);
+    cols.splice(colIndex,1);
+    this.hot.updateSettings({ colHeaders: headers, columns: cols, data });
+  }
 
-      controls.querySelector("#exportJsonBtn").addEventListener("click", () => {
-        const { rows } = this.getCurrentDataObjects();
-        const ts = new Date().toISOString().slice(0, 19);
-        const blob = new Blob([JSON.stringify(rows, null, 2)], { type: "application/json;charset=utf-8" });
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(blob);
-        a.download = `edited-${ts}.json`;
-        a.click();
-        URL.revokeObjectURL(a.href);
-      });
+  exportCsv() {
+    const { headers, rows } = this.getCurrentDataObjects();
+    const csv = Papa.unparse(rows,{columns:headers});
+    const content = '\uFEFF'+csv;
+    const ts = new Date().toISOString().replace(/[:T]/g,'-').slice(0,19);
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([content],{type:'text/csv;charset=utf-8'}));
+    a.download = `edited-${ts}.csv`;
+    a.click();
+  }
 
-      controls.querySelector("#darkModeBtn").addEventListener("click", () => {
-        document.body.classList.toggle("dark");
-      });
-    }
+  exportJson() {
+    const { rows } = this.getCurrentDataObjects();
+    const ts = new Date().toISOString().replace(/[:T]/g,'-').slice(0,19);
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([JSON.stringify(rows,null,2)],{type:'application/json;charset=utf-8'}));
+    a.download = `edited-${ts}.json`;
+    a.click();
+  }
 
-    getElement() {
-      return this.container;
-    }
-
-    getValue() {
-      return this.hot.getSourceData();
-    }
-
-    setValue(val) {
-      if (Array.isArray(val)) {
-        const headers = val.length ? Object.keys(val[0]) : [];
-        const cols = headers.map((h) => ({ data: h, type: "text" }));
-        this.hot.updateSettings({ data: val, columns: cols, colHeaders: headers });
-      }
-    }
-  };
 });
