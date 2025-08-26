@@ -1,10 +1,10 @@
 // ===== CSV Block Markdown Component =====
+console.log("✅ csv-block.js 已經載入！");
 
 CMS.registerEditorComponent({
-  // test
   id: "csvblock",
   label: "CSV 表格",
-  fields: [{ name: "csv", label: "CSV 內容", widget: "hidden" }],
+  fields: [{ name: "csv", label: "CSV 內容", widget: "csv-editor" }],
   pattern: /^```csv\n([\s\S]*?)\n```$/,
   fromBlock: match => ({ csv: match[1] }),
   toBlock: obj => "```csv\n" + (obj.csv || "") + "\n```",
