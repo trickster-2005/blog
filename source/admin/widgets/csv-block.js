@@ -1,46 +1,37 @@
-console.log("✅ csv-block-iframe 已載入！");
+console.log("✅ csv-block.js loaded");
 
-CMS.registerEditorComponent({
-  id: "csvblock",
-  label: "CSV 表格",
-  fields: [{ name: "csv", label: "CSV 內容", widget: "string" }],
-  pattern: /^```csv\n([\s\S]*?)\n```$/,
-  fromBlock: (match) => ({ csv: match[1] || "" }),
-  toBlock: (obj) => "```csv\n" + (obj.csv || "") + "\n```",
-  toPreview: function (obj) {
-    const iframeId = "csv-iframe-" + Math.random().toString(36).substr(2, 9);
+// 從 URL 取得 CSV 資料，若無則使用預設
+function getCSVFromURL() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get("csv") || "Name,Age,Gender\nAlice,23,Female\nBob,30,Male";
+}
 
-    // iframe HTML
-    const html = `<iframe id="${iframeId}" src="/admin/widgets/csv-editor.html" style="width:100%; height:350px; border:1px solid #ccc;"></iframe>`;
+function initHandsontable() {
+  const container = document.getElementById("hot");
+  const csvData = getCSVFromURL();
+  const data = csvData.trim().split("\n").map(r => r.split(","));
 
-    // 傳遞 CSV 初始資料給 iframe
-    setTimeout(() => {
-      const iframe = document.getElementById(iframeId);
-      if (!iframe) return;
+  console.log("Initial CSV data:", data);
 
-      iframe.onload = () => {
-        console.log("iframe loaded:", iframeId);
+  const hot = new Handsontable(container, {
+    data: data,
+    rowHeaders: true,
+    colHeaders: true,
+    licenseKey: "non-commercial-and-evaluation",
+    contextMenu: true,
+    filters: true,
+    columnSorting: true,
+    stretchH: "all",
+    afterChange: () => {
+      const updatedCSV = hot.getData().map(r => r.join(",")).join("\n");
+      console.log("Updated CSV:", updatedCSV);
 
-        // 送入初始 CSV
-        const defaultCSV = "Name,Age,Gender\nAlice,23,Female\nBob,30,Male";
-        const csvData = obj.csv || defaultCSV;
+      // 可選：傳回父頁面
+      if (window.parent && window.parent.updateCSV) {
+        window.parent.updateCSV(updatedCSV);
+      }
+    }
+  });
+}
 
-        iframe.contentWindow.postMessage(
-          { type: "initCSV", csv: csvData },
-          "*"
-        );
-
-        // 接收 iframe 內更新的 CSV
-        window.addEventListener("message", (event) => {
-          if (event.source !== iframe.contentWindow) return;
-          if (event.data.type === "updateCSV") {
-            obj.csv = event.data.csv;
-            console.log("Updated CSV from iframe:", obj.csv);
-          }
-        });
-      };
-    }, 0);
-
-    return html;
-  },
-});
+document.addEventListener("DOMContentLoaded", initHandsontable);
