@@ -38,7 +38,6 @@ collections:
       - { label: "Tags", name: "tags", widget: "list", required: false }      # 標籤
       - { label: "Categories", name: "categories", widget: "list", required: false } # 分類
       - { label: "Body", name: "body", widget: "markdown" }   # 正文內容 (Markdown)
-      - { label: "CSV", name: "csv", widget: "csv-editor" } # 新增
 
   # ----------- Pages -----------
   - name: "pages"                          # collection 名稱
