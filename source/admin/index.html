@@ -1,32 +1,22 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="robots" content="noindex" />
-  <title>Content Manager</title>
-
-  <!-- Handsontable CSS -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/handsontable@14.3.0/dist/handsontable.full.min.css">
-
-  <!-- 你可以額外引入自己的樣式 -->
-  <!-- <link rel="stylesheet" href="/admin/style.css"> -->
-</head>
-<body>
-  <!-- Decap CMS 核心 -->
-  <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
-
-  <!-- Handsontable + PapaParse -->
-  <script src="https://cdn.jsdelivr.net/npm/handsontable@14.3.0/dist/handsontable.full.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-
-  <!-- 你的自訂 widget -->
-  <script src="/admin/widgets/csv-block.js"></script>
-
-  <!-- CMS 設定 -->
-  <script>
-    // 告訴 Decap 在預覽面板載入你的 CSS
-    CMS.registerPreviewStyle("/admin/preview.css");
-  </script>
-</body>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/handsontable/16.0.1/handsontable.css" integrity="sha512-U+r4T8SdO23KtLZhv25h7bJz5e6KJi0AK0JHK47ZtvhAzDi6CQ3TcpplXWS+rkygLHOJ/FsShVuIGsyXQoiiFg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+    <title>Content Manager</title>
+  </head>
+  <body>
+    <!-- Include the script that builds the page and powers Decap CMS -->
+    <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/handsontable/16.0.1/handsontable.min.js" integrity="sha512-M5cDOBJhm/FWiMUdpbcPy09++3+gawz/znN1lQwgrMNESwsy+9VH3qzh2hE3agXLAIQHvSmeBSPlMzR8PtYkxQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    
+    <script src="/admin/csv-block.js"></script>
+    <script src="/admin/autoSave.js"></script>
+    <script>
+      CMS.registerPreviewStyle("/admin/preview.css");
+    </script>
+  </body>
 </html>
