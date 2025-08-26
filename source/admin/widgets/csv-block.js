@@ -1,25 +1,35 @@
-const React = CMS.React;
-
-class SimpleControl extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { value: props.value || "" };
+// 確保 CMS 已經載入
+(function() {
+  if (typeof CMS === 'undefined') {
+    console.error('Decap CMS not loaded');
+    return;
   }
 
-  handleChange = (e) => {
-    const val = e.target.value;
-    this.setState({ value: val });
-    this.props.onChange(val);
-  };
-
-  render() {
-    return React.createElement("input", {
-      type: "text",
-      value: this.state.value,
-      onChange: this.handleChange,
-      style: { width: "100%", padding: "8px" }
-    });
-  }
-}
-
-CMS.registerWidget("simple", SimpleControl);
+  CMS.registerEditorComponent({
+    id: "alert-box",
+    label: "Alert Box",
+    fields: [
+      { name: 'title', label: 'Title', widget: 'string' },
+      { name: 'content', label: 'Content', widget: 'markdown' }
+    ],
+    pattern: /^:::alert\s+(.*?)\s+(.*?):::/ms,
+    fromBlock: function(match) {
+      return {
+        title: match[1],
+        content: match[2]
+      };
+    },
+    toBlock: function(data) {
+      return `:::alert
+${data.title}
+${data.content}
+:::`;
+    },
+    toPreview: function(data) {
+      return CMS.h('div', {style: {border: '1px solid red', padding: '8px'}},
+        CMS.h('strong', {}, data.title),
+        CMS.h('p', {}, data.content)
+      );
+    }
+  });
+})();
