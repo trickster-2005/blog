@@ -40,7 +40,6 @@ document.addEventListener("DOMContentLoaded", function() {
     wrapper.style.overflowX = "auto";  // 水平滾動
     wrapper.style.overflowY = "auto";  // 垂直滾動
     wrapper.style.maxHeight = "400px"; // 最大高度，可調整
-    wrapper.style.maxWidth = `${el.parentElement.offsetWidth * 1.55}px`;
     wrapper.style.marginBottom = "10px"; 
     wrapper.style.width = "100%";
 
@@ -51,6 +50,14 @@ document.addEventListener("DOMContentLoaded", function() {
     table.style.minWidth = "100%";      // 至少撐滿容器
     table.style.textAlign = "left";
     table.innerHTML = htmlRows;
+
+    // 限制 table 最大寬度 = 父元素寬度 * 1.5
+    const parentWidth = el.parentElement ? el.parentElement.offsetWidth : 1000; // fallback
+    const maxWidth = parentWidth * 1.5;
+    table.style.maxWidth = maxWidth + "px";
+
+    // debug log
+    console.log("📐 parentWidth:", parentWidth, "→ table.maxWidth:", maxWidth);
 
     wrapper.appendChild(table);
     el.replaceWith(wrapper);
