@@ -53,7 +53,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // 限制 table 最大寬度 = 父元素寬度 * 1.5
     const parentWidth = el.parentElement ? el.parentElement.offsetWidth : 1000; // fallback
-    const maxWidth = parentWidth * 1.8;
+    const maxWidth = parentWidth * 2;
     table.style.maxWidth = maxWidth + "px";
 
     // debug log
