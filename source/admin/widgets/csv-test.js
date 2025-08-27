@@ -25,7 +25,8 @@ CMS.registerEditorComponent({
     });
 
     const buttonsHtml = `
-      <button style="margin-right:5px; padding:5px 12px; border-radius:4px; cursor:pointer; margin-bottom:5px;">Download</button>
+      <button style="margin-right:5px; padding:5px 12px; border-radius:4px; cursor:pointer; margin-bottom:5px;">Upload</button>
+      <button style="padding:5px 12px; border-radius:4px; cursor:pointer; margin-bottom:5px;">Download</button>
     `;
 
     return `${buttonsHtml}<br>
@@ -35,13 +36,20 @@ CMS.registerEditorComponent({
   },
   control: function (props) {
     const container = document.createElement("div");
-    container.style.display = "flex";
-    container.style.flexDirection = "column";
     container.style.width = "100%";
 
     // 工具列按鈕
     const toolbar = document.createElement("div");
     toolbar.style.marginBottom = "8px";
+    toolbar.style.display = "flex";
+    toolbar.style.flexWrap = "wrap";
+
+    const uploadBtn = document.createElement("button");
+    uploadBtn.textContent = "Upload";
+    uploadBtn.style.marginRight = "5px";
+    uploadBtn.style.padding = "5px 12px";
+    uploadBtn.style.borderRadius = "4px";
+    uploadBtn.style.cursor = "pointer";
 
     const downloadBtn = document.createElement("button");
     downloadBtn.textContent = "Download";
@@ -49,12 +57,12 @@ CMS.registerEditorComponent({
     downloadBtn.style.borderRadius = "4px";
     downloadBtn.style.cursor = "pointer";
 
+    toolbar.appendChild(uploadBtn);
     toolbar.appendChild(downloadBtn);
     container.appendChild(toolbar);
 
     // 內容編輯區
     const textarea = document.createElement("textarea");
-    textarea.style.flex = "1";
     textarea.style.width = "100%";
     textarea.style.height = "200px";
     textarea.value =
@@ -66,7 +74,27 @@ CMS.registerEditorComponent({
 
     container.appendChild(textarea);
 
-    // 測試 Download
+    // 上傳功能
+    uploadBtn.addEventListener("click", () => {
+      const input = document.createElement("input");
+      input.type = "file";
+      input.accept = ".csv";
+      input.addEventListener("change", (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function (evt) {
+          const text = evt.target.result.trim();
+          textarea.value = text;
+          props.onChange(text);
+        };
+        reader.readAsText(file);
+      });
+      input.click();
+    });
+
+    // 下載功能
     downloadBtn.addEventListener("click", () => {
       const csvText = textarea.value;
       const blob = new Blob([csvText], { type: "text/csv;charset=utf-8" });
@@ -74,7 +102,10 @@ CMS.registerEditorComponent({
       const a = document.createElement("a");
       a.href = url;
       a.download = "table.csv";
+      a.style.display = "none"; // 隱藏
+      document.body.appendChild(a);
       a.click();
+      document.body.removeChild(a);
       URL.revokeObjectURL(url);
     });
 
