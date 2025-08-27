@@ -27,6 +27,13 @@ CMS.registerEditorComponent({
     const containerRef = React.useRef(null);
     const hotRef = React.useRef(null);
 
+    const defaultColHeaders = ["Name", "Age", "Gender"];
+    const defaultColumns = [
+      { type: "text" },
+      { type: "numeric" },
+      { type: "dropdown", source: ["Male", "Female", "Other"] }
+    ];
+
     React.useEffect(() => {
       if (!containerRef.current) return;
 
@@ -36,17 +43,10 @@ CMS.registerEditorComponent({
 
       const data = csvData.split("\n").map(r => r.split(","));
 
-      const colHeaders = ["Name", "Age", "Gender"];
-      const columns = [
-        { type: "text" },
-        { type: "numeric" },
-        { type: "dropdown", source: ["Male", "Female", "Other"] }
-      ];
-
       hotRef.current = new Handsontable(containerRef.current, {
         data,
-        colHeaders,
-        columns,
+        colHeaders: defaultColHeaders,
+        columns: defaultColumns,
         rowHeaders: true,
         licenseKey: "non-commercial-and-evaluation",
         contextMenu: [
@@ -57,13 +57,39 @@ CMS.registerEditorComponent({
           "col_right",
           "remove_col",
           "undo",
-          "redo"
+          "redo",
+          {
+            name: "Add Column...",
+            callback: function() {
+              const colName = prompt("Enter column name:", "NewColumn");
+              if (!colName) return;
+              const colType = prompt("Enter type: text / numeric / dropdown / date", "text");
+              let colDef = { type: "text" };
+              if (colType === "numeric") colDef = { type: "numeric" };
+              else if (colType === "dropdown") {
+                const options = prompt("Enter dropdown options separated by commas", "Option1,Option2");
+                colDef = { type: "dropdown", source: options.split(",") };
+              }
+              else if (colType === "date") colDef = { type: "date", dateFormat: "YYYY-MM-DD" };
+
+              hotRef.current.alter("insert_col", hotRef.current.countCols());
+              const idx = hotRef.current.countCols() - 1;
+
+              const cols = hotRef.current.getSettings().columns.slice();
+              cols[idx] = colDef;
+              hotRef.current.updateSettings({
+                columns: cols,
+                colHeaders: [...hotRef.current.getColHeader(), colName]
+              });
+            }
+          }
         ],
         filters: true,
         columnSorting: true,
         stretchH: "all",
         manualColumnResize: true,
         manualRowResize: true,
+        copyPaste: true,
         afterChange: (changes, source) => {
           if (source === "loadData") return;
           const updatedCSV = hotRef.current.getData().map(r => r.join(",")).join("\n");
@@ -72,6 +98,6 @@ CMS.registerEditorComponent({
       });
     }, []);
 
-    return h('div', { ref: containerRef, style: { width: "100%", height: "350px" } });
+    return h('div', { ref: containerRef, style: { width: "100%", height: "500px", overflow: "auto" } });
   }
 });
