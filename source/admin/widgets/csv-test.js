@@ -1,12 +1,12 @@
 console.log("✅ csv-test.js loaded");
 
-const { h } = CMS; // React.createElement
+const { h, createClass } = CMS; // React.createElement & createClass
 
 CMS.registerEditorComponent({
   id: "csv-table",
   label: "CSV Table",
   fields: [
-    { name: "csv", label: "CSV Content", widget: "text" }
+    { name: "csv", label: "CSV Content", widget: "text" } // 這個 field 只是暫存資料
   ],
   pattern: /^<csv-table>([\s\S]*?)<\/csv-table>$/ms,
   fromBlock: function(match) {
@@ -16,88 +16,56 @@ CMS.registerEditorComponent({
     };
   },
   toBlock: function(data) {
-    return `<csv-table>\n${data.csv}\n</csv-table>`;
+    // 將 CSV 轉成 HTML table，並儲存
+    const rows = data.csv.split("\n").map(r => r.split(","));
+    const htmlRows = rows.map(r => "<tr>" + r.map(c => `<td>${c}</td>`).join("") + "</tr>");
+    const htmlTable = `<table border="1" style="border-collapse: collapse; width: 100%;">${htmlRows.join("")}</table>`;
+
+    // 儲存 Markdown 內容 + HTML table
+    return `<csv-table>\n${data.csv}\n</csv-table>\n${htmlTable}`;
   },
   toPreview: function(data) {
+    // 編輯器內預覽表格
     const rows = data.csv.split("\n").map(r => r.split(","));
     const htmlRows = rows.map(r => "<tr>" + r.map(c => `<td>${c}</td>`).join("") + "</tr>");
     return `<table border="1" style="border-collapse: collapse; width: 100%;">${htmlRows.join("")}</table>`;
   },
-  control: function(props) {
-    const containerRef = React.useRef(null);
-    const hotRef = React.useRef(null);
+  control: createClass({
+    componentDidMount: function() {
+      // 建立 Handsontable 容器
+      const container = document.createElement("div");
+      container.style.width = "100%";
+      container.style.height = "400px";
+      this.el.appendChild(container);
 
-    const defaultColHeaders = ["Name", "Age", "Gender"];
-    const defaultColumns = [
-      { type: "text" },
-      { type: "numeric" },
-      { type: "dropdown", source: ["Male", "Female", "Other"] }
-    ];
-
-    React.useEffect(() => {
-      if (!containerRef.current) return;
-
-      const csvData = props.value && props.value.trim()
-        ? props.value
+      // 取得 CSV 或預設值
+      const csvData = this.props.value && this.props.value.trim()
+        ? this.props.value
         : "Name,Age,Gender\nAlice,23,Female\nBob,30,Male";
-
       const data = csvData.split("\n").map(r => r.split(","));
 
-      hotRef.current = new Handsontable(containerRef.current, {
+      this.hot = new Handsontable(container, {
         data,
-        colHeaders: defaultColHeaders,
-        columns: defaultColumns,
+        colHeaders: data[0] || ["Name", "Age", "Gender"],
         rowHeaders: true,
         licenseKey: "non-commercial-and-evaluation",
-        contextMenu: [
-          "row_above",
-          "row_below",
-          "remove_row",
-          "col_left",
-          "col_right",
-          "remove_col",
-          "undo",
-          "redo",
-          {
-            name: "Add Column...",
-            callback: function() {
-              const colName = prompt("Enter column name:", "NewColumn");
-              if (!colName) return;
-              const colType = prompt("Enter type: text / numeric / dropdown / date", "text");
-              let colDef = { type: "text" };
-              if (colType === "numeric") colDef = { type: "numeric" };
-              else if (colType === "dropdown") {
-                const options = prompt("Enter dropdown options separated by commas", "Option1,Option2");
-                colDef = { type: "dropdown", source: options.split(",") };
-              }
-              else if (colType === "date") colDef = { type: "date", dateFormat: "YYYY-MM-DD" };
-
-              hotRef.current.alter("insert_col", hotRef.current.countCols());
-              const idx = hotRef.current.countCols() - 1;
-
-              const cols = hotRef.current.getSettings().columns.slice();
-              cols[idx] = colDef;
-              hotRef.current.updateSettings({
-                columns: cols,
-                colHeaders: [...hotRef.current.getColHeader(), colName]
-              });
-            }
-          }
-        ],
-        filters: true,
-        columnSorting: true,
-        stretchH: "all",
+        contextMenu: true,
         manualColumnResize: true,
         manualRowResize: true,
+        stretchH: 'all',
+        filters: true,
+        columnSorting: true,
         copyPaste: true,
         afterChange: (changes, source) => {
           if (source === "loadData") return;
-          const updatedCSV = hotRef.current.getData().map(r => r.join(",")).join("\n");
-          props.onChange(updatedCSV);
+          const updatedCSV = this.hot.getData().map(r => r.join(",")).join("\n");
+          this.props.onChange(updatedCSV); // 更新 widget value
         }
       });
-    }, []);
-
-    return h('div', { ref: containerRef, style: { width: "100%", height: "500px", overflow: "auto" } });
-  }
+    },
+    render: function() {
+      this.el = h('div', { className: this.props.classNameWrapper });
+      return this.el;
+    }
+  })
 });
