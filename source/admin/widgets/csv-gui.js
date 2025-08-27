@@ -1,41 +1,57 @@
-// -------- Tabulator Editor Component --------
 CMS.registerEditorComponent({
-  id: "tabulator-table",
-  label: "Tabulator Table",
+  id: "tabulator-block",
+  label: "Interactive Table",
   fields: [
     {
-      name: "json",
-      label: "表格資料 (JSON)",
-      widget: "text",
-    },
+      name: "data",
+      label: "Table Data (JSON)",
+      widget: "text"
+    }
   ],
-  pattern: /^<tabulator>(.*?)<\/tabulator>$/ms,
+  pattern: /^<tabulator>([\s\S]*?)<\/tabulator>$/m,
   fromBlock: function (match) {
-    return {
-      json: match[1],
-    };
+    return { data: match[1] };
   },
-  toBlock: function (data) {
-    return `<tabulator>${data.json}</tabulator>`;
+  toBlock: function (obj) {
+    return `<tabulator>${obj.data}</tabulator>`;
   },
-  toPreview: function (data) {
-    // 建立預覽區塊
-    let wrapper = document.createElement("div");
-    wrapper.style.border = "1px solid #ccc";
-    wrapper.style.minHeight = "150px";
-
+  toPreview: function (obj, getAsset, fields) {
+    let data = [];
     try {
-      const json = JSON.parse(data.json);
-      new Tabulator(wrapper, {
-        columns: json.columns || [],
-        data: json.data || [],
-        layout: "fitColumns",
-        height: "200px",
-      });
+      data = JSON.parse(obj.data);
     } catch (e) {
-      wrapper.textContent = "⚠️ JSON 格式錯誤，無法預覽";
+      data = [{ name: "Sample", age: 20, email: "test@example.com" }];
     }
 
-    return wrapper;
-  },
+    // 容器
+    const container = document.createElement("div");
+    container.style.height = "250px";
+    container.style.border = "1px solid #ddd";
+
+    setTimeout(() => {
+      const table = new Tabulator(container, {
+        data: data,
+        layout: "fitColumns",
+        reactiveData: true, // 確保即時更新
+        columns: [
+          { title: "Name", field: "name", editor: "input" },
+          { title: "Age", field: "age", editor: "number" },
+          { title: "Email", field: "email", editor: "input" }
+        ]
+      });
+
+      // 🔑 重點：監聽變更，回寫到 Markdown JSON
+      table.on("dataChanged", function (updatedData) {
+        // 直接更新 Decap CMS 的值
+        obj.data = JSON.stringify(updatedData);
+        // 這邊會觸發同步到 <tabulator>JSON</tabulator>
+        const field = fields.find(f => f.get("name") === "data");
+        if (field && field.onChange) {
+          field.onChange(obj.data);
+        }
+      });
+    }, 50);
+
+    return container;
+  }
 });
