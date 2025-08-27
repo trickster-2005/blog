@@ -3,7 +3,7 @@ document.querySelectorAll("tabulator").forEach(el => {
   try {
     data = JSON.parse(el.textContent);
   } catch(e) {
-    console.error("Invalid Tabulator JSON", e);
+    data = [];
   }
 
   const container = document.createElement("div");
