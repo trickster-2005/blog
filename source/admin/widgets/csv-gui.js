@@ -1,85 +1,125 @@
-// 解構 React hooks
-const { useState, useEffect, useRef } = React;
+(function() {
+  // Control Component (後台欄位)
+  function CSVControl({ value = [], onChange, forID, classNameWrapper }) {
+    const container = document.createElement('div');
+    container.id = forID;
+    container.className = classNameWrapper;
 
-// 後台編輯用 Control Component
-function CSVControl({ value = [], onChange, forID, classNameWrapper }) {
-  const tableRef = useRef(null);
-  const [data, setData] = useState(value.length ? value : [{ A: '', B: '' }]);
+    // 初始化資料
+    let data = Array.isArray(value) ? value : [];
 
-  // 初始化 Tabulator
-  useEffect(() => {
-    if (!tableRef.current) return;
+    const tableEl = document.createElement('table');
+    tableEl.style.borderCollapse = 'collapse';
+    tableEl.style.width = '100%';
+    container.appendChild(tableEl);
 
-    const table = new Tabulator(tableRef.current, {
-      data: data,
-      reactiveData: true,
-      layout: "fitDataStretch",
-      columns: data[0]
-        ? Object.keys(data[0]).map((k) => ({
-            title: k,
-            field: k,
-            editor: "input",
-          }))
-        : [],
-      cellEdited: () => onChange(data),
+    function renderTable() {
+      tableEl.innerHTML = '';
+      if (!data.length) return;
+
+      const headerRow = document.createElement('tr');
+      Object.keys(data[0]).forEach(col => {
+        const th = document.createElement('th');
+        th.textContent = col;
+        th.style.border = '1px solid #ccc';
+        th.style.padding = '4px';
+        headerRow.appendChild(th);
+      });
+      tableEl.appendChild(headerRow);
+
+      data.forEach((row, rowIndex) => {
+        const tr = document.createElement('tr');
+        Object.keys(row).forEach(col => {
+          const td = document.createElement('td');
+          td.style.border = '1px solid #ccc';
+          td.style.padding = '2px';
+
+          const input = document.createElement('input');
+          input.value = row[col];
+          input.style.width = '100%';
+          input.addEventListener('input', e => {
+            data[rowIndex][col] = e.target.value;
+            onChange(data);
+          });
+
+          td.appendChild(input);
+          tr.appendChild(td);
+        });
+        tableEl.appendChild(tr);
+      });
+    }
+
+    // 新增列
+    const addRowBtn = document.createElement('button');
+    addRowBtn.type = 'button';
+    addRowBtn.textContent = '新增列';
+    addRowBtn.addEventListener('click', () => {
+      const newRow = {};
+      if (data[0]) Object.keys(data[0]).forEach(k => (newRow[k] = ''));
+      data.push(newRow);
+      onChange(data);
+      renderTable();
     });
 
-    return () => table.destroy();
-  }, [tableRef, data]);
+    // 新增欄
+    const addColBtn = document.createElement('button');
+    addColBtn.type = 'button';
+    addColBtn.textContent = '新增欄';
+    addColBtn.addEventListener('click', () => {
+      const colName = prompt('輸入欄位名稱');
+      if (!colName) return;
+      data.forEach(r => (r[colName] = ''));
+      onChange(data);
+      renderTable();
+    });
 
-  // 新增列
-  const addRow = () => {
-    const newRow = {};
-    if (data[0]) Object.keys(data[0]).forEach((k) => (newRow[k] = ""));
-    const newData = [...data, newRow];
-    setData(newData);
-    onChange(newData);
-  };
+    container.appendChild(addRowBtn);
+    container.appendChild(addColBtn);
 
-  // 新增欄位
-  const addColumn = () => {
-    const colName = prompt("輸入欄位名稱");
-    if (!colName) return;
-    const newData = data.map((r) => ({ ...r, [colName]: "" }));
-    setData(newData);
-    onChange(newData);
-  };
+    renderTable();
 
-  return React.createElement(
-    "div",
-    { className: classNameWrapper, id: forID },
-    React.createElement("div", { ref: tableRef }),
-    React.createElement(
-      "button",
-      { type: "button", onClick: addRow, style: { margin: "5px" } },
-      "新增列"
-    ),
-    React.createElement(
-      "button",
-      { type: "button", onClick: addColumn, style: { margin: "5px" } },
-      "新增欄"
-    )
-  );
-}
+    return container;
+  }
 
-// 前台預覽用 Preview Component
-function CSVPreview({ value = [] }) {
-  if (!value.length) return React.createElement("div", null, "無資料");
+  // Preview Component (前台只讀)
+  function CSVPreview({ value = [] }) {
+    const container = document.createElement('div');
+    if (!value.length) {
+      container.textContent = '無資料';
+      return container;
+    }
 
-  const columns = Object.keys(value[0]).map((k) => ({ title: k, field: k }));
+    const tableEl = document.createElement('table');
+    tableEl.style.borderCollapse = 'collapse';
+    tableEl.style.width = '100%';
 
-  return React.createElement("div", {
-    ref: (el) => {
-      if (!el) return;
-      new Tabulator(el, {
-        data: value,
-        columns,
-        layout: "fitDataStretch",
-        reactiveData: false,
+    const headerRow = document.createElement('tr');
+    Object.keys(value[0]).forEach(col => {
+      const th = document.createElement('th');
+      th.textContent = col;
+      th.style.border = '1px solid #ccc';
+      th.style.padding = '4px';
+      headerRow.appendChild(th);
+    });
+    tableEl.appendChild(headerRow);
+
+    value.forEach(row => {
+      const tr = document.createElement('tr');
+      Object.keys(row).forEach(col => {
+        const td = document.createElement('td');
+        td.textContent = row[col];
+        td.style.border = '1px solid #ccc';
+        td.style.padding = '2px';
+        tr.appendChild(td);
       });
-    },
-  });
-}
+      tableEl.appendChild(tr);
+    });
 
-// 註冊 Widget
-CMS.registerWidget("csv", CSVControl, CSVPreview);
+    container.appendChild(tableEl);
+    return container;
+  }
+
+  // 註冊 Widget
+  CMS.registerWidget('csv', CSVControl, CSVPreview);
+
+})();
