@@ -1,10 +1,12 @@
-console.log("✅ csv-block.js loaded");
+console.log("✅ csv-test.js loaded");
+
+const { h } = CMS; // React.createElement
 
 CMS.registerEditorComponent({
   id: "csv-table",
   label: "CSV Table",
   fields: [
-    { name: "csv", label: "CSV Content", widget: "text" } // Markdown 存 CSV 純文字
+    { name: "csv", label: "CSV Content", widget: "text" }
   ],
   pattern: /^<csv-table>([\s\S]*?)<\/csv-table>$/ms,
   fromBlock: function(match) {
@@ -21,26 +23,31 @@ CMS.registerEditorComponent({
     const htmlRows = rows.map(r => "<tr>" + r.map(c => `<td>${c}</td>`).join("") + "</tr>");
     return `<table border="1" style="border-collapse: collapse; width: 100%;">${htmlRows.join("")}</table>`;
   },
-  control: CMS.createClass({
-    componentDidMount: function() {
-      // 建立 Handsontable 容器
-      const container = document.createElement("div");
-      container.style.width = "100%";
-      container.style.height = "300px";
-      this.el.appendChild(container);
+  control: function(props) {
+    const containerRef = React.useRef(null);
+    const hotRef = React.useRef(null);
 
-      // CSV -> 2D Array
-      const csvData = this.props.value && this.props.value.trim()
-        ? this.props.value
+    React.useEffect(() => {
+      if (!containerRef.current) return;
+
+      const csvData = props.value && props.value.trim()
+        ? props.value
         : "Name,Age,Gender\nAlice,23,Female\nBob,30,Male";
 
       const data = csvData.split("\n").map(r => r.split(","));
 
-      // 初始化 Handsontable
-      this.hot = new Handsontable(container, {
+      const colHeaders = ["Name", "Age", "Gender"];
+      const columns = [
+        { type: "text" },
+        { type: "numeric" },
+        { type: "dropdown", source: ["Male", "Female", "Other"] }
+      ];
+
+      hotRef.current = new Handsontable(containerRef.current, {
         data,
+        colHeaders,
+        columns,
         rowHeaders: true,
-        colHeaders: true,
         licenseKey: "non-commercial-and-evaluation",
         contextMenu: [
           "row_above",
@@ -58,15 +65,13 @@ CMS.registerEditorComponent({
         manualColumnResize: true,
         manualRowResize: true,
         afterChange: (changes, source) => {
-          if (source === "loadData") return; // 避免循環
-          const updatedCSV = this.hot.getData().map(r => r.join(",")).join("\n");
-          this.props.onChange(updatedCSV);
+          if (source === "loadData") return;
+          const updatedCSV = hotRef.current.getData().map(r => r.join(",")).join("\n");
+          props.onChange(updatedCSV);
         }
       });
-    },
-    render: function() {
-      this.el = CMS.h('div', { className: this.props.classNameWrapper });
-      return this.el;
-    }
-  })
+    }, []);
+
+    return h('div', { ref: containerRef, style: { width: "100%", height: "350px" } });
+  }
 });
