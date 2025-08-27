@@ -5,14 +5,14 @@ CMS.registerEditorComponent({
   label: "CSV Table",
   fields: [{ name: "csv", label: "CSV Content", widget: "text" }],
   pattern: /^<csv-table>([\s\S]*?)<\/csv-table>$/ms,
-  fromBlock: function (match) {
+  fromBlock: function(match) {
     const content = match && match[1] ? match[1].trim() : "";
     return { csv: content || "Name,Age,Gender\nAlice,23,Female\nBob,30,Male" };
   },
-  toBlock: function (data) {
+  toBlock: function(data) {
     return `<csv-table>\n${data.csv || "Name,Age,Gender\nAlice,23,Female\nBob,30,Male"}\n</csv-table>`;
   },
-  toPreview: function (data) {
+  toPreview: function(data) {
     const csvContent = data.csv || "Name,Age,Gender\nAlice,23,Female\nBob,30,Male";
     const rows = csvContent.split("\n").map(r => r.split(","));
     const htmlRows = rows.map((r, idx) => {
@@ -23,13 +23,13 @@ CMS.registerEditorComponent({
       ${htmlRows.join("\n")}
     </table>`;
   },
-  control: function (props) {
+  control: function(props) {
     const container = document.createElement("div");
     container.style.display = "flex";
     container.style.flexDirection = "column";
     container.style.width = "100%";
 
-    // 內容編輯區
+    // 編輯區使用 textarea 直接修改 CSV 文字
     const textarea = document.createElement("textarea");
     textarea.style.flex = "1";
     textarea.style.width = "100%";
@@ -48,7 +48,6 @@ CMS.registerEditorComponent({
     });
 
     container.appendChild(textarea);
-
     return container;
   }
 });
