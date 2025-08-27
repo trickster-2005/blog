@@ -32,21 +32,14 @@ CMS.registerEditorComponent({
     container.style.width = "100%";
     container.style.height = "400px";
 
-    // 工具列
-    const toolbar = document.createElement("div");
-    toolbar.style.marginBottom = "5px";
-
-    const uploadBtn = document.createElement("input");
-    uploadBtn.type = "file";
-    uploadBtn.accept = ".csv";
-    uploadBtn.style.marginRight = "10px";
-    toolbar.appendChild(uploadBtn);
-
-    const downloadBtn = document.createElement("button");
-    downloadBtn.textContent = "下載 CSV";
-    toolbar.appendChild(downloadBtn);
-
-    container.appendChild(toolbar);
+    // ====== 測試按鈕 ======
+    const testBtn = document.createElement("button");
+    testBtn.textContent = "測試按鈕";
+    testBtn.style.marginBottom = "5px";
+    testBtn.addEventListener("click", () => {
+      alert("按鈕互動成功！");
+    });
+    container.appendChild(testBtn);
 
     // 內容區
     const contentWrapper = document.createElement("div");
@@ -94,47 +87,6 @@ CMS.registerEditorComponent({
     });
 
     updatePreview(csvData);
-
-    // 上傳功能
-    uploadBtn.addEventListener("change", (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = function(evt) {
-        const text = evt.target.result.trim();
-        rows = text.split("\n").map(r => r.split(","));
-        headers = rows[0];
-        columns = headers.map(h => ({ title: h, field: h, editor: "input" }));
-        tableData = rows.slice(1).map(r => {
-          const obj = {};
-          headers.forEach((h,i)=>obj[h]=r[i]||"");
-          return obj;
-        });
-
-        table.setColumns(columns);
-        table.setData(tableData);
-        props.onChange(text);
-        updatePreview(text);
-      };
-      reader.readAsText(file);
-    });
-
-    // 下載功能
-    downloadBtn.addEventListener("click", () => {
-      const data = table.getData();
-      const csvLines = [
-        headers.join(","),
-        ...data.map(row => headers.map(h => row[h]).join(","))
-      ];
-      const blob = new Blob([csvLines.join("\n")], { type: "text/csv;charset=utf-8" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "table.csv";
-      a.click();
-      URL.revokeObjectURL(url);
-    });
 
     function updateCSVAndPreview() {
       const updatedData = table.getData();
