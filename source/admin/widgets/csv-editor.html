@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSV Editor</title>
+<link rel="stylesheet" href="https://unpkg.com/tabulator-tables@5.5.0/dist/css/tabulator.min.css">
+<style>
+body { font-family: sans-serif; margin: 5px; }
+button { margin: 5px 2px; }
+</style>
+</head>
+<body>
+
+<div id="csv-container"></div>
+<button id="add-row">新增列</button>
+<button id="add-col">新增欄</button>
+
+<script src="https://unpkg.com/tabulator-tables@5.5.0/dist/js/tabulator.min.js"></script>
+<script>
+let tableData = [];
+let table;
+
+function renderTable() {
+  if (!table) {
+    table = new Tabulator("#csv-container", {
+      data: tableData,
+      reactiveData: true,
+      layout: "fitDataStretch",
+      columns: tableData[0] ? Object.keys(tableData[0]).map(k => ({ title: k, field: k, editor: "input" })) : [],
+      cellEdited: () => postData()
+    });
+  } else {
+    table.replaceData(tableData);
+    const cols = tableData[0] ? Object.keys(tableData[0]).map(k => ({ title: k, field: k, editor: "input" })) : [];
+    table.setColumns(cols);
+  }
+}
+
+function postData() {
+  parent.postMessage({ type: 'csv-save', data: JSON.stringify(tableData) }, "*");
+}
+
+document.getElementById("add-row").addEventListener("click", () => {
+  const newRow = {};
+  if (tableData[0]) Object.keys(tableData[0]).forEach(k => newRow[k] = "");
+  tableData.push(newRow);
+  renderTable();
+  postData();
+});
+
+document.getElementById("add-col").addEventListener("click", () => {
+  const colName = prompt("輸入欄位名稱");
+  if (!colName) return;
+  tableData.forEach(r => r[colName] = "");
+  renderTable();
+  postData();
+});
+
+// 接收 CMS 傳入資料
+window.addEventListener("message", (e) => {
+  if (e.data.type === "init-csv") {
+    try { tableData = JSON.parse(e.data.data); } catch { tableData = []; }
+    renderTable();
+  }
+});
+</script>
+
+</body>
+</html>

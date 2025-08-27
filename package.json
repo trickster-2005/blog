@@ -12,6 +12,7 @@
     "version": "7.3.0"
   },
   "dependencies": {
+    "decap-cms": "^3.8.3",
     "hexo": "^7.3.0",
     "hexo-deployer-git": "^4.0.0",
     "hexo-footnotes": "^1.0.2",
@@ -29,6 +30,9 @@
     "markdown-it-checkbox": "^1.1.0",
     "markdown-it-footnote": "^4.0.0",
     "markdown-it-imsize": "^2.0.1",
-    "marked-footnote": "^1.2.4"
+    "marked-footnote": "^1.2.4",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "tabulator-tables": "^6.3.1"
   }
 }
