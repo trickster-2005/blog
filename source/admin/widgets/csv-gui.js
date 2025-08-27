@@ -1,51 +1,57 @@
-const TabulatorPreview = ({ value, onChange }) => {
-  const containerRef = React.useRef(null);
-  const tableRef = React.useRef(null);
+const { useState, useEffect, useRef } = React;
 
-  React.useEffect(() => {
-    let data = [];
-    try {
-      data = JSON.parse(value || "[]");
-    } catch (e) {
-      data = [];
-    }
+// Control Component (後台編輯)
+function CSVControl({ value = [], onChange, forID, classNameWrapper }) {
+  const tableRef = useRef(null);
+  const [data, setData] = useState(value);
 
-    tableRef.current = new Tabulator(containerRef.current, {
+  useEffect(() => {
+    if (!tableRef.current) return;
+
+    const table = new Tabulator(tableRef.current, {
       data: data,
-      layout: "fitColumns",
       reactiveData: true,
-      columns: [
-        { title: "Name", field: "name", editor: "input" },
-        { title: "Age", field: "age", editor: "number" },
-        { title: "Email", field: "email", editor: "input" }
-      ]
+      layout: "fitDataStretch",
+      columns: data[0] ? Object.keys(data[0]).map(k => ({ title: k, field: k, editor: "input" })) : [],
+      cellEdited: () => onChange(data),
     });
 
-    // 監聽變更，回寫 Markdown JSON
-    tableRef.current.on("dataChanged", (updatedData) => {
-      if (onChange) onChange(JSON.stringify(updatedData));
-    });
+    return () => table.destroy();
+  }, [tableRef, data]);
 
-    return () => {
-      if (tableRef.current) tableRef.current.destroy();
-    };
-  }, []);
+  const addRow = () => {
+    const newRow = {};
+    if (data[0]) Object.keys(data[0]).forEach(k => newRow[k] = "");
+    setData([...data, newRow]);
+  };
 
-  return React.createElement("div", {
-    ref: containerRef,
-    style: { height: "250px", border: "1px solid #ddd" }
-  });
-};
+  const addColumn = () => {
+    const colName = prompt("輸入欄位名稱");
+    if (!colName) return;
+    const newData = data.map(r => ({ ...r, [colName]: "" }));
+    setData(newData);
+  };
 
-CMS.registerEditorComponent({
-  id: "tabulator-block",
-  label: "Interactive Table",
-  fields: [
-    { name: "data", label: "Table Data (JSON)", widget: "text" }
-  ],
-  // Markdown 中的 pattern，用來抓 <tabulator>...</tabulator>
-  pattern: /^<tabulator>([\s\S]*?)<\/tabulator>$/m,
-  fromBlock: match => ({ data: match[1] }),
-  toBlock: obj => `<tabulator>${obj.data}</tabulator>`,
-  toPreview: TabulatorPreview
-});
+  return (
+    <div className={classNameWrapper} id={forID}>
+      <div ref={tableRef}></div>
+      <button type="button" onClick={addRow}>新增列</button>
+      <button type="button" onClick={addColumn}>新增欄</button>
+    </div>
+  );
+}
+
+// Preview Component (前台只讀)
+function CSVPreview({ value = [] }) {
+  if (!value.length) return <div>無資料</div>;
+
+  const columns = Object.keys(value[0]).map(k => ({ title: k, field: k }));
+  
+  return <div id="csv-preview" ref={el => {
+    if (!el) return;
+    new Tabulator(el, { data: value, columns, layout: "fitDataStretch", reactiveData: false });
+  }}></div>;
+}
+
+// 註冊 Widget
+CMS.registerWidget("csv", CSVControl, CSVPreview);
