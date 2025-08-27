@@ -3,23 +3,25 @@ console.log("✅ csv-widget.js loaded");
 CMS.registerEditorComponent({
   id: "csv-table",
   label: "CSV Table",
-  fields: [
-    { name: "csv", label: "CSV Content", widget: "text" }
-  ],
+  fields: [{ name: "csv", label: "CSV Content", widget: "text" }],
   pattern: /^<csv-table>([\s\S]*?)<\/csv-table>$/ms,
-  fromBlock: function(match) {
+  fromBlock: function (match) {
     const content = match && match[1] ? match[1].trim() : "";
     return { csv: content || "Name,Age,Gender\nAlice,23,Female\nBob,30,Male" };
   },
-  toBlock: function(data) {
-    return `<csv-table>\n${data.csv || "Name,Age,Gender\nAlice,23,Female\nBob,30,Male"}\n</csv-table>`;
+  toBlock: function (data) {
+    return `<csv-table>\n${
+      data.csv || "Name,Age,Gender\nAlice,23,Female\nBob,30,Male"
+    }\n</csv-table>`;
   },
-  toPreview: function(data) {
-    const csvContent = data.csv || "Name,Age,Gender\nAlice,23,Female\nBob,30,Male";
-    const rows = csvContent.split("\n").map(r => r.split(","));
+  toPreview: function (data) {
+    const csvContent =
+      data.csv || "Name,Age,Gender\nAlice,23,Female\nBob,30,Male";
+    const rows = csvContent.split("\n").map((r) => r.split(","));
     const htmlRows = rows.map((r, idx) => {
-      if(idx===0) return "<tr>" + r.map(c => `<th>${c}</th>`).join("") + "</tr>";
-      return "<tr>" + r.map(c => `<td>${c}</td>`).join("") + "</tr>";
+      if (idx === 0)
+        return "<tr>" + r.map((c) => `<th>${c}</th>`).join("") + "</tr>";
+      return "<tr>" + r.map((c) => `<td>${c}</td>`).join("") + "</tr>";
     });
 
     const buttonsHtml = `
@@ -31,7 +33,7 @@ CMS.registerEditorComponent({
         ${htmlRows.join("\n")}
       </table>`;
   },
-  control: function(props) {
+  control: function (props) {
     const container = document.createElement("div");
     container.style.display = "flex";
     container.style.flexDirection = "column";
@@ -55,7 +57,8 @@ CMS.registerEditorComponent({
     textarea.style.flex = "1";
     textarea.style.width = "100%";
     textarea.style.height = "200px";
-    textarea.value = props.value || "Name,Age,Gender\nAlice,23,Female\nBob,30,Male";
+    textarea.value =
+      props.value || "Name,Age,Gender\nAlice,23,Female\nBob,30,Male";
 
     textarea.addEventListener("input", () => {
       props.onChange(textarea.value);
@@ -65,8 +68,8 @@ CMS.registerEditorComponent({
 
     // 測試 Download
     downloadBtn.addEventListener("click", () => {
-      const csvData = textarea.value;
-      const blob = new Blob([csvData], { type: "text/csv;charset=utf-8" });
+      const csvText = textarea.value;
+      const blob = new Blob([csvText], { type: "text/csv;charset=utf-8" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
@@ -76,5 +79,5 @@ CMS.registerEditorComponent({
     });
 
     return container;
-  }
+  },
 });
