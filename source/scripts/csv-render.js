@@ -35,20 +35,21 @@ document.addEventListener("DOMContentLoaded", function() {
       return "<tr>" + r.map(c => `<td>${c}</td>`).join("") + "</tr>";
     }).join("\n");
 
-    // 建立可滾動容器
+    // 建立容器，限制寬度，允許換行
     const wrapper = document.createElement("div");
-    wrapper.style.overflowX = "auto";  // 水平滾動
+    wrapper.style.overflowX = "auto";  // 超出寬度時可水平滾動
+    wrapper.style.maxWidth = "100%";   // 不超出父容器寬度
     wrapper.style.overflowY = "auto";  // 垂直滾動
-    wrapper.style.maxHeight = "400px"; // 最大高度，可調整
-    wrapper.style.marginBottom = "10px"; 
-    wrapper.style.width = "100%";
+    wrapper.style.maxHeight = "400px";
+    wrapper.style.marginBottom = "10px";
 
     const table = document.createElement("table");
     table.border = "1";
     table.style.borderCollapse = "collapse";
-    table.style.width = "max-content"; // 寬度依內容延伸
-    table.style.minWidth = "100%";      // 至少撐滿容器
+    table.style.width = "100%";        // 填滿容器
+    table.style.tableLayout = "fixed"; // 固定表格佈局
     table.style.textAlign = "left";
+    table.style.wordWrap = "break-word"; // 單元格文字自動換行
     table.innerHTML = htmlRows;
 
     wrapper.appendChild(table);
