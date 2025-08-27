@@ -18,101 +18,56 @@ CMS.registerEditorComponent({
     const csvContent = data.csv || "Name,Age,Gender\nAlice,23,Female\nBob,30,Male";
     const rows = csvContent.split("\n").map(r => r.split(","));
     const htmlRows = rows.map((r, idx) => {
-      if(idx === 0) return "<tr>" + r.map(c => `<th>${c}</th>`).join("") + "</tr>";
+      if(idx===0) return "<tr>" + r.map(c => `<th>${c}</th>`).join("") + "</tr>";
       return "<tr>" + r.map(c => `<td>${c}</td>`).join("") + "</tr>";
     });
-
-    return `
-      <div class="csv-widget">
-        <button class="csv-upload-btn">upload</button>
-        <button class="csv-download-btn">download</button>
-        <table border="1" style="border-collapse: collapse; width:100%; text-align:left;">
-          ${htmlRows.join("\n")}
-        </table>
-      </div>
+    
+    // 產生 preview 按鈕
+    const buttonsHtml = `
+      <button onclick="alert('Upload button clicked')">Upload</button>
+      <button onclick="alert('Download button clicked')">Download</button>
     `;
+
+    return `${buttonsHtml}
+      <table border="1" style="border-collapse: collapse; width:100%; text-align:left;">
+        ${htmlRows.join("\n")}
+      </table>`;
   },
   control: function(props) {
     const container = document.createElement("div");
     container.style.display = "flex";
     container.style.flexDirection = "column";
     container.style.width = "100%";
-    container.style.height = "400px";
 
-    // 內容區
-    const contentWrapper = document.createElement("div");
-    contentWrapper.style.display = "flex";
-    contentWrapper.style.flex = "1";
+    // 工具列按鈕
+    const toolbar = document.createElement("div");
+    toolbar.style.marginBottom = "5px";
 
-    const editEl = document.createElement("div");
-    editEl.style.flex = "1";
-    editEl.style.marginRight = "10px";
+    const uploadBtn = document.createElement("button");
+    uploadBtn.textContent = "Upload";
+    uploadBtn.addEventListener("click", () => alert("Upload button clicked"));
+    toolbar.appendChild(uploadBtn);
 
-    const previewEl = document.createElement("div");
-    previewEl.style.flex = "1";
-    previewEl.style.overflow = "auto";
-    previewEl.style.border = "1px solid #ccc";
-    previewEl.style.padding = "5px";
+    const downloadBtn = document.createElement("button");
+    downloadBtn.textContent = "Download";
+    downloadBtn.style.marginLeft = "5px";
+    downloadBtn.addEventListener("click", () => alert("Download button clicked"));
+    toolbar.appendChild(downloadBtn);
 
-    contentWrapper.appendChild(editEl);
-    contentWrapper.appendChild(previewEl);
-    container.appendChild(contentWrapper);
+    container.appendChild(toolbar);
 
-    // 初始化 CSV
-    let csvData = props.value && props.value.trim()
-      ? props.value
-      : "Name,Age,Gender\nAlice,23,Female\nBob,30,Male";
+    // 內容編輯區
+    const textarea = document.createElement("textarea");
+    textarea.style.flex = "1";
+    textarea.style.width = "100%";
+    textarea.style.height = "200px";
+    textarea.value = props.value || "Name,Age,Gender\nAlice,23,Female\nBob,30,Male";
 
-    let rows = csvData.split("\n").map(r => r.split(","));
-    let headers = rows[0];
-    let columns = headers.map(h => ({ title: h, field: h, editor: "input" }));
-    let tableData = rows.slice(1).map(r => {
-      const obj = {};
-      headers.forEach((h,i)=> obj[h]=r[i]||"");
-      return obj;
+    textarea.addEventListener("input", () => {
+      props.onChange(textarea.value);
     });
 
-    // 建立 Tabulator
-    const table = new Tabulator(editEl, {
-      data: tableData,
-      columns: columns,
-      layout: "fitColumns",
-      reactiveData: true,
-      movableColumns: true,
-      resizableRows: true,
-      height: "100%",
-      cellEdited: updateCSVAndPreview
-    });
-
-    updatePreview(csvData);
-
-    function updateCSVAndPreview() {
-      const updatedData = table.getData();
-      const csvLines = [
-        headers.join(","),
-        ...updatedData.map(row => headers.map(h => row[h]).join(","))
-      ];
-      const updatedCSV = csvLines.join("\n");
-      props.onChange(updatedCSV);
-      updatePreview(updatedCSV);
-    }
-
-    function updatePreview(csvText) {
-      const previewRows = csvText.split("\n").map((r, idx) => {
-        const cols = r.split(",");
-        if(idx === 0) return "<tr>" + cols.map(c=>`<th>${c}</th>`).join("") + "</tr>";
-        return "<tr>" + cols.map(c=>`<td>${c}</td>`).join("") + "</tr>";
-      }).join("\n");
-      previewEl.innerHTML = `
-        <div class="csv-widget">
-          <button class="csv-upload-btn">upload</button>
-          <button class="csv-download-btn">download</button>
-          <table border="1" style="border-collapse: collapse; width:100%; text-align:left;">
-            ${previewRows}
-          </table>
-        </div>
-      `;
-    }
+    container.appendChild(textarea);
 
     return container;
   }
