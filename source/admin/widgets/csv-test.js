@@ -21,14 +21,13 @@ CMS.registerEditorComponent({
       if(idx===0) return "<tr>" + r.map(c => `<th>${c}</th>`).join("") + "</tr>";
       return "<tr>" + r.map(c => `<td>${c}</td>`).join("") + "</tr>";
     });
-    
-    // 產生 preview 按鈕
+
     const buttonsHtml = `
-      <button onclick="alert('Upload button clicked')">Upload</button>
-      <button onclick="alert('Download button clicked')">Download</button>
+      <button style="margin-right:5px; padding:5px 12px; border-radius:4px; cursor:pointer;" onclick="alert('Upload button clicked')">Upload</button>
+      <button style="padding:5px 12px; border-radius:4px; cursor:pointer;" onclick="alert('Download button clicked')">Download</button>
     `;
 
-    return `${buttonsHtml}
+    return `${buttonsHtml}<br><br>
       <table border="1" style="border-collapse: collapse; width:100%; text-align:left;">
         ${htmlRows.join("\n")}
       </table>`;
@@ -41,19 +40,23 @@ CMS.registerEditorComponent({
 
     // 工具列按鈕
     const toolbar = document.createElement("div");
-    toolbar.style.marginBottom = "5px";
+    toolbar.style.marginBottom = "8px";
 
     const uploadBtn = document.createElement("button");
     uploadBtn.textContent = "Upload";
-    uploadBtn.addEventListener("click", () => alert("Upload button clicked"));
-    toolbar.appendChild(uploadBtn);
+    uploadBtn.style.marginRight = "5px";
+    uploadBtn.style.padding = "5px 12px";
+    uploadBtn.style.borderRadius = "4px";
+    uploadBtn.style.cursor = "pointer";
 
     const downloadBtn = document.createElement("button");
     downloadBtn.textContent = "Download";
-    downloadBtn.style.marginLeft = "5px";
-    downloadBtn.addEventListener("click", () => alert("Download button clicked"));
-    toolbar.appendChild(downloadBtn);
+    downloadBtn.style.padding = "5px 12px";
+    downloadBtn.style.borderRadius = "4px";
+    downloadBtn.style.cursor = "pointer";
 
+    toolbar.appendChild(uploadBtn);
+    toolbar.appendChild(downloadBtn);
     container.appendChild(toolbar);
 
     // 內容編輯區
@@ -68,6 +71,39 @@ CMS.registerEditorComponent({
     });
 
     container.appendChild(textarea);
+
+    // 上傳功能
+    uploadBtn.addEventListener("click", () => {
+      const input = document.createElement("input");
+      input.type = "file";
+      input.accept = ".csv";
+      input.addEventListener("change", (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          const text = evt.target.result.trim();
+          const lines = text.split("\n").map(l => l.split(","));
+          const colCount = lines[0].length;
+
+          // 驗證每列欄位數
+          const valid = lines.every(l => l.length === colCount);
+          if(!valid) {
+            alert("CSV 格式錯誤：欄位數不一致");
+            return;
+          }
+
+          textarea.value = text;
+          props.onChange(text);
+        };
+        reader.readAsText(file);
+      });
+      input.click();
+    });
+
+    // 測試 Download
+    downloadBtn.addEventListener("click", () => alert("Download button clicked"));
 
     return container;
   }
