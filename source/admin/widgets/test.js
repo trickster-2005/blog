@@ -11,7 +11,7 @@ CMS.registerEditorComponent({
     return {};
   },
   toBlock: function(data) {
-    return `<csv-button-test></csv-button-test>`;
+    return `<csv-button-test>hello</csv-button-test>`;
   },
   toPreview: function(data) {
     return `<div>CSV Button Preview</div>`;

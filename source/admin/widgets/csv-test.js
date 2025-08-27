@@ -18,12 +18,19 @@ CMS.registerEditorComponent({
     const csvContent = data.csv || "Name,Age,Gender\nAlice,23,Female\nBob,30,Male";
     const rows = csvContent.split("\n").map(r => r.split(","));
     const htmlRows = rows.map((r, idx) => {
-      if(idx===0) return "<tr>" + r.map(c => `<th>${c}</th>`).join("") + "</tr>";
+      if(idx === 0) return "<tr>" + r.map(c => `<th>${c}</th>`).join("") + "</tr>";
       return "<tr>" + r.map(c => `<td>${c}</td>`).join("") + "</tr>";
     });
-    return `<table border="1" style="border-collapse: collapse; width:100%; text-align:left;">
-      ${htmlRows.join("\n")}
-    </table>`;
+
+    return `
+      <div class="csv-widget">
+        <button class="csv-upload-btn">upload</button>
+        <button class="csv-download-btn">download</button>
+        <table border="1" style="border-collapse: collapse; width:100%; text-align:left;">
+          ${htmlRows.join("\n")}
+        </table>
+      </div>
+    `;
   },
   control: function(props) {
     const container = document.createElement("div");
@@ -31,15 +38,6 @@ CMS.registerEditorComponent({
     container.style.flexDirection = "column";
     container.style.width = "100%";
     container.style.height = "400px";
-
-    // ====== 測試按鈕 ======
-    const testBtn = document.createElement("button");
-    testBtn.textContent = "測試按鈕";
-    testBtn.style.marginBottom = "5px";
-    testBtn.addEventListener("click", () => {
-      alert("按鈕互動成功！");
-    });
-    container.appendChild(testBtn);
 
     // 內容區
     const contentWrapper = document.createElement("div");
@@ -102,12 +100,18 @@ CMS.registerEditorComponent({
     function updatePreview(csvText) {
       const previewRows = csvText.split("\n").map((r, idx) => {
         const cols = r.split(",");
-        if(idx===0) return "<tr>" + cols.map(c=>`<th>${c}</th>`).join("") + "</tr>";
+        if(idx === 0) return "<tr>" + cols.map(c=>`<th>${c}</th>`).join("") + "</tr>";
         return "<tr>" + cols.map(c=>`<td>${c}</td>`).join("") + "</tr>";
       }).join("\n");
-      previewEl.innerHTML = `<table border="1" style="border-collapse: collapse; width:100%; text-align:left;">
-        ${previewRows}
-      </table>`;
+      previewEl.innerHTML = `
+        <div class="csv-widget">
+          <button class="csv-upload-btn">upload</button>
+          <button class="csv-download-btn">download</button>
+          <table border="1" style="border-collapse: collapse; width:100%; text-align:left;">
+            ${previewRows}
+          </table>
+        </div>
+      `;
     }
 
     return container;
