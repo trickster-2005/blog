@@ -1,19 +1,19 @@
 console.log("✅ csv-test-with-download.js loaded");
 
 CMS.registerEditorComponent({
-  id: "csv-table",
-  label: "CSV Table",
+  id: "csv",
+  label: "CSV Table Test",
   fields: [
     { name: "csv", label: "CSV Content", widget: "text" }
   ],
-  pattern: /^<csv-table>([\s\S]*?)<\/csv-table>$/ms,
+  pattern: /^<csv>([\s\S]*?)<\/csv>$/ms,
   fromBlock: function(match) {
     const content = match && match[1] ? match[1].trim() : "";
     return { csv: content || "Name,Age,Gender\nAlice,23,Female\nBob,30,Male" };
   },
   toBlock: function(data) {
     // 發佈時存 CSV
-    return `<csv-table>\n${data.csv || "Name,Age,Gender\nAlice,23,Female\nBob,30,Male"}\n</csv-table>`;
+    return `<csv>\n${data.csv || "Name,Age,Gender\nAlice,23,Female\nBob,30,Male"}\n</csv>`;
   },
   toPreview: function(data) {
     const csvContent = data.csv || "Name,Age,Gender\nAlice,23,Female\nBob,30,Male";
