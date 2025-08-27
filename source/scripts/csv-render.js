@@ -40,6 +40,7 @@ document.addEventListener("DOMContentLoaded", function() {
     wrapper.style.overflowX = "auto";  // 水平滾動
     wrapper.style.overflowY = "auto";  // 垂直滾動
     wrapper.style.maxHeight = "400px"; // 最大高度，可調整
+    wrapper.style.maxWidth = `${el.parentElement.offsetWidth * 1.55}px`;
     wrapper.style.marginBottom = "10px"; 
     wrapper.style.width = "100%";
 
