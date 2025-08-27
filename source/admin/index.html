@@ -11,10 +11,10 @@
       crossorigin="anonymous"
       referrerpolicy="no-referrer"
     />
-    <link
+    <!-- <link
       href="https://unpkg.com/tabulator-tables@5.5.0/dist/css/tabulator.min.css"
       rel="stylesheet"
-    />
+    /> -->
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
     <script
       src="https://unpkg.com/react@18/umd/react.development.js"
@@ -29,7 +29,7 @@
   <body>
     <!-- Include the script that builds the page and powers Decap CMS -->
     <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
-    <script src="https://unpkg.com/tabulator-tables@5.5.0/dist/js/tabulator.min.js"></script>
+    <!-- <script src="https://unpkg.com/tabulator-tables@5.5.0/dist/js/tabulator.min.js"></script> -->
     <script
       src="https://cdnjs.cloudflare.com/ajax/libs/handsontable/16.0.1/handsontable.min.js"
       integrity="sha512-M5cDOBJhm/FWiMUdpbcPy09++3+gawz/znN1lQwgrMNESwsy+9VH3qzh2hE3agXLAIQHvSmeBSPlMzR8PtYkxQ=="
@@ -47,23 +47,7 @@
     <script src="/admin/autoSave.js"></script>
     
     <script>
-      CMS.init({
-        config: {
-          backend: { name: "git-gateway", branch: "main" },
-          media_folder: "assets",
-          collections: [
-            {
-              name: "posts",
-              label: "Posts",
-              folder: "content/posts",
-              fields: [
-                { name: "title", label: "Title", widget: "string" },
-                { name: "csv_table", label: "CSV Table", widget: "csv-iframe" },
-              ],
-            },
-          ],
-        },
-      });
+      CMS.registerPreviewStyle("/admin/preview.css");
     </script>
   </body>
 </html>
