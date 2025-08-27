@@ -25,7 +25,7 @@ CMS.registerEditorComponent({
     });
 
     const buttonsHtml = `
-      <button style="margin-right:5px; padding:5px 12px; border-radius:4px; cursor:pointer; margin-bottom:5px;" onclick="alert('Download button clicked')">Download</button>
+      <button style="margin-right:5px; padding:5px 12px; border-radius:4px; cursor:pointer; margin-bottom:5px;">Download</button>
     `;
 
     return `${buttonsHtml}<br>
