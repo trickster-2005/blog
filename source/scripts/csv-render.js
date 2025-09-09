@@ -8,12 +8,13 @@ document.addEventListener("DOMContentLoaded", function() {
       const lines = text.split("\n");
       for (let line of lines) {
         const row = [];
+        // 初始化目前欄位內容
         let current = "";
         let inQuotes = false;
         for (let i = 0; i < line.length; i++) {
           const char = line[i];
           if (char === '"' && (i === 0 || line[i - 1] !== '\\')) {
-            inQuotes = !inQuotes;
+            inQuotes = !inQuotes;F
           } else if (char === "," && !inQuotes) {
             row.push(current.trim().replace(/^"(.*)"$/,'$1'));
             current = "";
@@ -57,8 +58,7 @@ document.addEventListener("DOMContentLoaded", function() {
     table.style.maxWidth = maxWidth + "px";
 
     // debug log
-    console.log("📐 parentWidth:", parentWidth, "→ table.maxWidth:", maxWidth);
-
+    console.log("parentWidth:", parentWidth, "→ table.maxWidth:", maxWidth);
     wrapper.appendChild(table);
     el.replaceWith(wrapper);
   });
