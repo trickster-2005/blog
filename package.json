@@ -12,7 +12,7 @@
     "version": "7.3.0"
   },
   "dependencies": {
-    "decap-cms": "^3.8.3",
+    "decap-cms": "^3.8.4",
     "hexo": "^7.3.0",
     "hexo-deployer-git": "^4.0.0",
     "hexo-footnotes": "^1.0.2",
