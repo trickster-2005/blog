@@ -1,14 +1,16 @@
 ---
-title: Creative Coding
+title: Coding Projects
 ---
+### CSVLint Schema Builder
+
+<https://trickster-2005.github.io/csvlint-schema-builder/>
+
 ### p5.js
 
 * WebGL\
   [demo](https://trickster-2005.github.io/frontend-collection/webgl_art/) / [source code](https://github.com/trickster-2005/frontend-collection/tree/main/webgl_art)
 
   ![](https://res.cloudinary.com/dmdeqgoxs/image/upload/v1753689081/wave_blrdsg.png)
-
-
 * ml5.js\
   [demo](https://trickster-2005.github.io/frontend-collection/face_detect_ml5/) / [source code](https://github.com/trickster-2005/frontend-collection/tree/main/face_detect_ml5)
 
