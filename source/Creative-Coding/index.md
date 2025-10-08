@@ -5,6 +5,10 @@ title: Coding Projects
 
 <https://trickster-2005.github.io/csvlint-schema-builder/>
 
+![](https://res.cloudinary.com/dmdeqgoxs/image/upload/v1759952717/csvlint_vetjft.png)
+
+[](https://trickster-2005.github.io/csvlint-schema-builder/)
+
 ### p5.js
 
 * WebGL\
