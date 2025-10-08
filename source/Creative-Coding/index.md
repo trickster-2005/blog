@@ -1,5 +1,5 @@
 ---
-title: Creative Coding
+title: Coding Projects
 ---
 ### CSVLint Schema Builder
 
