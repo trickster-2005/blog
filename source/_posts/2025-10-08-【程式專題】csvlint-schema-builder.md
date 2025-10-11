@@ -117,4 +117,4 @@ Schema 是描述一份資料該「長什麼樣子」的規範，它會定義每�
     列出支援的資料類型和相關說明。
 
 ### 匯出 Schema（可選擇）
-* 點擊 Download schema.json 按鈕，將設定好的 CSVW Schema 儲存到本地，供其他系統使用。
+* 點擊 Download schema.json 按鈕，將設定好的 CSVW Schema 儲存。
