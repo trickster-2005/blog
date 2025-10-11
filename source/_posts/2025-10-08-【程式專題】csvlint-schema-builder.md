@@ -7,7 +7,7 @@ tags:
   - 技術
   - 專題
 ---
-[專題網址](https://trickster-2005.github.io/csvlint-schema-builder) / [GitHub](https://github.com/trickster-2005/csvlint-schema-builder)
+[Demo](https://trickster-2005.github.io/csvlint-schema-builder) / [GitHub](https://github.com/trickster-2005/csvlint-schema-builder)
 
 [](https://github.com/trickster-2005/csvlint-schema-builder)
 
