@@ -14,18 +14,14 @@ tags:
 ![](https://res.cloudinary.com/dmdeqgoxs/image/upload/v1759952717/csvlint_vetjft.png)
 
 ## 簡介
-
 這個專題主要處理與規範化（Schema）CSV（逗號分隔值）檔案，並協助使用者：
-
 1. **自動產生架構 (Infer)：**\
    上傳 CSV 檔案後，工具會自動辨識欄位標題並產生 schema.json。
 2. **客製化規範檔案 (Schema)：**\
    使用者可自訂每個欄位的詳細資料規範，包括：
-
    * 資料類型： integer、date、email 等。
    * 基礎設定： 必填 (Required)、唯一 (Unique)。
    * 進階設定：
-
      * 數值範圍 (Min/Max)
      * 允許值的列舉清單 (Enum)
      * 字串的正規表示式 (Regex) 
