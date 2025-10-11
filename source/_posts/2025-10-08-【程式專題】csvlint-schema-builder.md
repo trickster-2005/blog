@@ -15,16 +15,13 @@ tags:
 
 ## 簡介
 這個專題主要處理與規範化（Schema）CSV（逗號分隔值）檔案，並協助使用者：
-
 1. **自動產生架構 (Infer)：**\
    上傳 CSV 檔案後，工具會自動辨識欄位標題並產生 schema.json。
 2. **客製化規範檔案 (Schema)：**\
    使用者可自訂每個欄位的詳細資料規範，包括：
-
    * 資料類型： integer、date、email 等。
    * 基礎設定： 必填 (Required)、唯一 (Unique)。
    * 進階設定：
-
      * 數值範圍 (Min/Max)
      * 允許值的列舉清單 (Enum)
      * 字串的正規表示式 (Regex) 
@@ -36,10 +33,8 @@ tags:
 - - -
 
 ## 前言：相關知識補充
-
 ### CSV（Comma-Separated Values，逗號分隔值）
 常見的純文字檔案格式，每行代表一筆記錄（Row），記錄中的欄位（Field/Column）通常使用逗號或其他特定符號（如分號、Tab 鍵）分隔。由於其操作簡單，被廣泛用於資料庫或試算表等，但也因缺乏驗證容易產生錯誤。
-
 ```csv
 Name, Age
 Andy, 20
@@ -117,4 +112,4 @@ Schema 是描述一份資料該「長什麼樣子」的規範，它會定義每�
     列出支援的資料類型和相關說明。
 
 ### 匯出 Schema（可選擇）
-* 點擊 Download schema.json 按鈕，將設定好的 CSVW Schema 儲存到本地，供其他系統使用。
+* 點擊 Download schema.json 按鈕，將設定好的 CSVW Schema 儲存。
