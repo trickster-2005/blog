@@ -89,37 +89,29 @@ Schema 是描述一份資料該「長什麼樣子」的規範，它會定義每�
 ```
 
 ### CSV on the Web (CSVW)
-
 由 W3C (World Wide Web Consortium) 制定的一套標準，將 CSV 資料和描述其結構的 Metadata（後設資料，即 Schema）連結起來，本工具輸出的 schema.json 就是遵循此標準。
 
 - - -
 
 ## 操作方式
-
 專案設計採用兩欄式佈局，使用者可以動態調整左右側寬度比例。左側是檔案上傳以及設定、schema.json 客製化；右側是預覽和結果。
 
 ### 一、資料上傳與設定
-
 * **上傳 CSV 檔案**：點擊上傳 CSV 檔案。
 * **基礎設定**
-
   * 分隔符號（Delimiter）、確認標題行（First row is header）
 
 ### 二、設定 Schema 規範（Schema Column Settings）
-
 * 系統會根據上傳的 CSV 檔案自動產生 schema.json；亦可點擊 "import schema.json，上傳檔案。
 * 左側下方可以調整欄位設定，並在右側即時預覽。若希望重設 schema.json 請點擊左側上方 "Rest schema.json"。
 
 ### 三、預覽和驗證（Preview and Validation）
-
 右側面板提供四個分頁：
-
 * CSV Preview： 預覽上傳的 CSV。 
 * Schema Preview： 
     即時顯示根據你的設定產生的 CSVW JSON 格式 Schema，可以在這裡複製或檢查輸出的 JSON。
 * Validation Result： 
     點擊左側的 Validate Current CSV 按鈕後顯示於此
-
   * 驗證成功： 
       顯示 ✅ Validation passed, no errors found.
   * 驗證失敗：
@@ -128,5 +120,4 @@ Schema 是描述一份資料該「長什麼樣子」的規範，它會定義每�
     列出支援的資料類型和相關說明。
 
 ### 匯出 Schema（可選擇）
-
 * 點擊 Download schema.json 按鈕，將設定好的 CSVW Schema 儲存。
