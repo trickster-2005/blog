@@ -31,7 +31,7 @@
     "markdown-it-footnote": "^4.0.0",
     "markdown-it-imsize": "^2.0.1",
     "marked-footnote": "^1.2.4",
-    "react": "^19.1.1",
+    "react": "^19.2.1",
     "react-dom": "^19.1.1",
     "tabulator-tables": "^6.3.1"
   }
